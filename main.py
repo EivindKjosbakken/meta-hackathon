@@ -2,6 +2,8 @@ import streamlit as st
 import PyPDF2
 from io import BytesIO
 from nebius_inference import inference
+import os
+from datetime import datetime
 
 # Load secrets
 NEBIUS_API_KEY = st.secrets["NEBIUS_API_KEY"]
@@ -39,9 +41,32 @@ Base your answer only on the information provided in the document. If the answer
     return inference(prompt)
 
 
+def load_patient_journals():
+    journals_dir = "data/journals"
+    journals = {}
+    for filename in os.listdir(journals_dir):
+        if filename.endswith(".pdf"):
+            try:
+                if " - " in filename:
+                    # Original format: "Ola Hansen - 120384 12345.pdf"
+                    name_part, numbers = filename.replace(".pdf", "").split(" - ")
+                    dob, personal_number = numbers.split(" ")
+                    search_string = f"{name_part.lower()} {dob} {personal_number}"
+                else:
+                    # New format: "patient_journal_PT10426.pdf"
+                    search_string = filename.replace(".pdf", "").lower()
+
+                journals[search_string] = os.path.join(journals_dir, filename)
+            except ValueError:
+                # Log error without showing warning
+                print(f"Could not parse filename: {filename}")
+                continue
+    return journals
+
+
 # Set up the Streamlit page
 st.set_page_config(page_title="PDF Chat Assistant", layout="wide")
-st.title("PDF Document Chat Assistant")
+st.title("Ambulance assistant")
 
 # Initialize session state variables
 if "pdf_text" not in st.session_state:
@@ -50,41 +75,60 @@ if "summary" not in st.session_state:
     st.session_state.summary = None
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
+if "patient_journals" not in st.session_state:
+    st.session_state.patient_journals = load_patient_journals()
 
-# Move file upload to sidebar
+# Sidebar content
 with st.sidebar:
-    uploaded_file = st.file_uploader("Upload your PDF document", type=["pdf"])
+    st.subheader("Patient Search")
+    search_query = st.text_input("Search by name or number:").lower()
+
+    if search_query:
+        # Search through available journals
+        matching_journals = {
+            key: path
+            for key, path in st.session_state.patient_journals.items()
+            if search_query in key
+        }
+
+        if matching_journals:
+            selected_journal = st.selectbox(
+                "Select patient journal:",
+                options=list(matching_journals.keys()),
+                format_func=lambda x: x.split(" ")[0].title()
+                + " "
+                + x.split(" ")[1].title(),  # Format name for display
+            )
+
+            if st.button("Load Journal"):
+                # Load the selected PDF
+                with open(matching_journals[selected_journal], "rb") as file:
+                    st.session_state.pdf_text = extract_text_from_pdf(file)
+                    # Generate summary
+                    with st.spinner("Generating summary..."):
+                        st.session_state.summary = get_pdf_summary(
+                            st.session_state.pdf_text
+                        )
+                    st.rerun()
+        else:
+            st.warning("No matching patients found")
 
     if st.session_state.pdf_text is not None:
-        if st.button("Process another document"):
+        if st.button("Clear current journal"):
             st.session_state.pdf_text = None
             st.session_state.summary = None
             st.session_state.chat_history = []
-            st.experimental_rerun()
+            st.rerun()
 
 # Main content
-if uploaded_file is not None and st.session_state.pdf_text is None:
-    # Extract text from PDF
-    st.session_state.pdf_text = extract_text_from_pdf(uploaded_file)
-
-    # Generate summary
-    with st.spinner("Generating summary..."):
-        st.session_state.summary = get_pdf_summary(st.session_state.pdf_text)
-
-# Add camera input to main content area
-camera_image = st.camera_input("Take a picture")
-
-if camera_image is not None:
-    st.image(camera_image, caption="Captured Image", use_column_width=True)
-
-# Display summary if available
-if st.session_state.summary:
+if st.session_state.pdf_text is not None:
+    # Display summary if available
     st.subheader("Document Summary")
     st.write(st.session_state.summary)
 
     # Chat interface
-    st.subheader("Chat with your document")
-    user_question = st.text_input("Ask a question about your document:")
+    st.subheader("Chat with your patient    ")
+    user_question = st.text_input("Ask a question about your patient:")
 
     if st.button("Send"):
         if user_question:
