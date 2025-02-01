@@ -25,6 +25,10 @@ def encode_image(image_input):
         # Extract the base64 part if it's a data URL
         return image_input.split(",")[1] if "," in image_input else image_input
 
+    # Handle Streamlit UploadedFile objects
+    if hasattr(image_input, "getvalue"):
+        return base64.b64encode(image_input.getvalue()).decode("utf-8")
+
     # If it's a file path, read and encode it
     try:
         if isinstance(image_input, (str, bytes)):
@@ -74,9 +78,9 @@ def vision_inference(image_inputs, prompt: str) -> str:
     return completion.choices[0].message.content
 
 
-# Example usage
-if __name__ == "__main__":
-    image_path = "picture.jpg"
-    prompt = "What do you see in this image?"
-    response = vision_inference(image_path, prompt)
-    print(response)
+# # Example usage
+# if __name__ == "__main__":
+#     image_path = "picture.jpg"
+#     prompt = "What do you see in this image?"
+#     response = vision_inference(image_path, prompt)
+#     print(response)

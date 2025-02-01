@@ -32,14 +32,15 @@ Please make the summary concise but include all important points."""
 
 
 def get_document_response(text, question, images=None):
-    base_prompt = f"""This is a patient journal, showing the medical history of the patient. Use this information if relevant when answering questions.
+    base_prompt = f"""
+                This is a patient journal, showing the medical history of the patient. Use this information if relevant when answering questions.
+                {text}
 
-{text}
+                Please answer this question: {question}
 
-Please answer this question: {question}
-
-Base your answer only on the information provided in the document and images (if any). If the answer cannot be found in the provided information, please say so."""
-
+                Base your answer only on the information provided in the document and images (if any). If the answer cannot be found in the provided information, please say so.
+                """
+    print("NUM IMAGES", len(images))
     if images:
         try:
             # Create a temporary directory if it doesn't exist
@@ -254,7 +255,8 @@ if st.session_state.patient_images:
             st.warning("Please load a patient journal before analyzing.")
         else:
             with st.spinner("Analyzing patient data..."):
-                analysis_prompt = """You are an expert medical professional.
+                analysis_prompt = """
+                You are an expert medical professional.
                 The images are taken on-scene from an ambulance helping the patient with what might be a medical emergency.
                 Analyze the patient's medical journal and current images and provide a structured assessment with clear action points for the ambulance personel.
 
@@ -292,10 +294,9 @@ if st.session_state.patient_images:
 
                 Please provide clear, actionable recommendations based on the findings."""
 
-                analysis = get_document_response(
-                    st.session_state.pdf_text,
+                analysis = vision_inference(
+                    st.session_state.patient_images,
                     analysis_prompt,
-                    images=st.session_state.patient_images,
                 )
 
                 st.subheader("Analysis Results")
