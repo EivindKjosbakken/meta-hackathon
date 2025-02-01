@@ -16,4 +16,5 @@ chromadb==0.3.29
 pydantic==1.10.13
 llama-index-core==0.10.1
 sentence-transformers
-pyttsx3
+gTTS
+pygame

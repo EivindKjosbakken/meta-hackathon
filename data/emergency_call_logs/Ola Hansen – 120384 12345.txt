@@ -1,0 +1,27 @@
+Operator: Emergency services, what's your emergency?
+
+Caller: I... I think I'm having a heart attack. My chest hurts really bad, and I can't move my right arm properly.
+
+Operator: Can you tell me your name and location?
+
+Caller: Ola Hansen. I'm at Storgata 15, apartment 4B in Bergen.
+
+Operator: Ola, I'm dispatching an ambulance right away. Are you alone?
+
+Caller: Yes, I'm alone. The pain... it's getting worse. My arm feels numb.
+
+Operator: Stay with me, Ola. Can you get to your front door to unlock it?
+
+Caller: I think so. I'm in my living room right now.
+
+Operator: If you can safely do so, unlock your door and then sit or lie down. Do you take any medications?
+
+Caller: Yes, blood pressure medication. It's in the bathroom cabinet.
+
+Operator: The ambulance is on its way. I want you to chew an aspirin if you have any available. Do not try to drive yourself to the hospital.
+
+Caller: I have aspirin in the kitchen. I'll get it now.
+
+Operator: Good. I'll stay on the line with you until the paramedics arrive. Let me know immediately if your symptoms get worse.
+
+Caller: Thank you. I can hear the sirens now.
