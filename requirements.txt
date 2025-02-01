@@ -2,3 +2,7 @@ python-dotenv
 requests
 openai
 black
+streamlit
+PyPDF2
+streamlit
+watchdog
