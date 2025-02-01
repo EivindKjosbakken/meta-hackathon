@@ -4,7 +4,7 @@ import * as React from "react"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown, Search, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Patient } from "@/types/patient"
 
@@ -23,17 +23,19 @@ export function PatientSearch({ onSelectPatient }: PatientSearchProps) {
   const [searchQuery, setSearchQuery] = React.useState("")
   const [searchResults, setSearchResults] = React.useState<SearchResult[]>([])
   const [error, setError] = React.useState<string | null>(null)
+  const [isSearching, setIsSearching] = React.useState(false)
 
-  const searchPatients = async (query: string) => {
-    if (!query) {
+  const searchPatients = async () => {
+    if (!searchQuery) {
       setSearchResults([])
       setError(null)
       return
     }
 
+    setIsSearching(true)
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/search_patients?query=${encodeURIComponent(query)}`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/search_patients?query=${encodeURIComponent(searchQuery)}`,
         {
           method: 'GET',
           headers: {
@@ -49,30 +51,36 @@ export function PatientSearch({ onSelectPatient }: PatientSearchProps) {
       }
 
       const data = await response.json()
-      setSearchResults(data.matches || [])
-      setError(null)
+      console.log('API Response:', data)
+      if (data.matches && data.matches.length > 0) {
+        setSearchResults(data.matches)
+        setOpen(true)
+      } else {
+        setSearchResults([])
+        setError("No matches found")
+      }
     } catch (error) {
       console.error("Error searching patients:", error)
       setSearchResults([])
       setError("Failed to search patients. Please try again.")
+    } finally {
+      setIsSearching(false)
     }
   }
 
-  // Debounce search to avoid too many API calls
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      searchPatients(searchQuery)
-    }, 300)
-
-    return () => clearTimeout(timer)
-  }, [searchQuery])
-
   const handleSelect = (result: SearchResult) => {
-    // Create a Patient object from the search result
+    // Parse "kari nordmann – 250795 67890" format
+    const [namePart, idPart] = result.name.split(" – ")
+    const [dateStr, personalNumber] = idPart ? idPart.split(" ") : ["", ""]
+    
+    // Format date from DDMMYY to a more readable format
+    const formattedDate = dateStr ? 
+      `${dateStr.slice(0,2)}.${dateStr.slice(2,4)}.${dateStr.slice(4)}` : ""
+
     const patient: Patient = {
-      id: result.name, // Using the full name as ID for now
-      name: result.name.split(" – ")[0], // Extract just the name part
-      dateOfBirth: result.name.split(" – ")[1]?.split(" ")[0] || "", // Extract DOB if available
+      id: personalNumber || result.name, // Use personal number as ID if available
+      name: namePart,
+      dateOfBirth: formattedDate,
       journalEntries: [],
       emergencyLogs: [],
     }
@@ -84,7 +92,10 @@ export function PatientSearch({ onSelectPatient }: PatientSearchProps) {
 
   return (
     <div className="space-y-2">
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover 
+        open={open} 
+        onOpenChange={setOpen}
+      >
         <PopoverTrigger asChild>
           <Button
             variant="outline"
@@ -96,41 +107,67 @@ export function PatientSearch({ onSelectPatient }: PatientSearchProps) {
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0 shadow-lg shadow-ai-500/10">
-          <Command className="border-ai-100">
-            <CommandInput
-              placeholder="Search by name or ID..."
-              value={searchQuery}
-              onValueChange={setSearchQuery}
-              className="border-b-ai-100"
-            />
-            <CommandList>
-              {error ? (
-                <CommandEmpty className="py-6 text-center text-sm text-red-500">
-                  {error}
-                </CommandEmpty>
-              ) : searchResults.length === 0 ? (
-                <CommandEmpty>No patient found.</CommandEmpty>
-              ) : (
+        <PopoverContent className="w-[400px] p-0" align="start">
+          <Command className="w-full">
+            <div className="flex gap-2 p-2 border-b">
+              <CommandInput
+                placeholder="Search by name or ID..."
+                value={searchQuery}
+                onValueChange={(value) => {
+                  setSearchQuery(value)
+                  if (!value) {
+                    setSearchResults([])
+                    setError(null)
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    searchPatients()
+                  }
+                }}
+                className="w-full"
+              />
+              <Button 
+                size="sm"
+                onClick={searchPatients}
+                disabled={isSearching}
+              >
+                {isSearching ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Search className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+            <CommandList className="max-h-[300px] overflow-y-auto p-2">
+              <CommandEmpty className="py-6 text-center text-sm">
+                {isSearching ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Searching...</span>
+                  </div>
+                ) : error ? (
+                  <span className="text-red-500">{error}</span>
+                ) : searchQuery ? (
+                  "No results found"
+                ) : (
+                  "Type a name and press Enter or click Search"
+                )}
+              </CommandEmpty>
+              {searchResults.length > 0 && (
                 <CommandGroup>
                   {searchResults.map((result) => (
                     <CommandItem
                       key={result.name}
+                      value={result.name}
                       onSelect={() => handleSelect(result)}
-                      className="hover:bg-ai-50"
+                      className="flex flex-col items-start gap-1 p-2 cursor-pointer hover:bg-ai-50"
                     >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4 text-ai-500",
-                          selectedPatient?.id === result.name ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      <div className="flex flex-col">
-                        <span>{result.name.split(" – ")[0]}</span>
-                        <span className="text-sm text-muted-foreground">
-                          Match score: {result.score}%
-                        </span>
-                      </div>
+                      <span className="font-medium">{result.name.split(" – ")[0]}</span>
+                      <span className="text-sm text-muted-foreground">
+                        Match score: {result.score}%
+                      </span>
                     </CommandItem>
                   ))}
                 </CommandGroup>
