@@ -3,6 +3,10 @@ import PyPDF2
 from io import BytesIO
 from nebius_inference import inference
 
+# Load secrets
+NEBIUS_API_KEY = st.secrets["NEBIUS_API_KEY"]
+NORSK_GPT_API_KEY = st.secrets["NORSK_GPT_API_KEY"]
+TEMPERATURE = st.secrets["TEMPERATURE"]
 
 def extract_text_from_pdf(pdf_file):
     pdf_reader = PyPDF2.PdfReader(pdf_file)
@@ -46,12 +50,14 @@ if "summary" not in st.session_state:
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# Create two columns
-left_column, right_column = st.columns([1, 2])
-
-# File upload section in left column
-with left_column:
+# Move file upload to sidebar
+with st.sidebar:
     uploaded_file = st.file_uploader("Upload your PDF document", type=["pdf"])
+    # Replace image uploader with camera input
+    camera_image = st.camera_input("Take a picture")
+
+    if camera_image is not None:
+        st.image(camera_image, caption='Captured Image', use_column_width=True)
 
     if st.session_state.pdf_text is not None:
         if st.button("Process another document"):
@@ -60,44 +66,43 @@ with left_column:
             st.session_state.chat_history = []
             st.experimental_rerun()
 
-# Main content in right column
-with right_column:
-    if uploaded_file is not None and st.session_state.pdf_text is None:
-        # Extract text from PDF
-        st.session_state.pdf_text = extract_text_from_pdf(uploaded_file)
+# Main content
+if uploaded_file is not None and st.session_state.pdf_text is None:
+    # Extract text from PDF
+    st.session_state.pdf_text = extract_text_from_pdf(uploaded_file)
 
-        # Generate summary
-        with st.spinner("Generating summary..."):
-            st.session_state.summary = get_pdf_summary(st.session_state.pdf_text)
+    # Generate summary
+    with st.spinner("Generating summary..."):
+        st.session_state.summary = get_pdf_summary(st.session_state.pdf_text)
 
-    # Display summary if available
-    if st.session_state.summary:
-        st.subheader("Document Summary")
-        st.write(st.session_state.summary)
+# Display summary if available
+if st.session_state.summary:
+    st.subheader("Document Summary")
+    st.write(st.session_state.summary)
 
-        # Chat interface
-        st.subheader("Chat with your document")
-        user_question = st.text_input("Ask a question about your document:")
+    # Chat interface
+    st.subheader("Chat with your document")
+    user_question = st.text_input("Ask a question about your document:")
 
-        if st.button("Send"):
-            if user_question:
-                # Add user question to chat history
-                st.session_state.chat_history.append(("user", user_question))
+    if st.button("Send"):
+        if user_question:
+            # Add user question to chat history
+            st.session_state.chat_history.append(("user", user_question))
 
-                # Get response
-                with st.spinner("Getting response..."):
-                    response = get_document_response(
-                        st.session_state.pdf_text, user_question
-                    )
+            # Get response
+            with st.spinner("Getting response..."):
+                response = get_document_response(
+                    st.session_state.pdf_text, user_question
+                )
 
-                # Add response to chat history
-                st.session_state.chat_history.append(("assistant", response))
+            # Add response to chat history
+            st.session_state.chat_history.append(("assistant", response))
 
-        # Display chat history
-        st.subheader("Chat History")
-        for role, message in st.session_state.chat_history:
-            if role == "user":
-                st.write("You: " + message)
-            else:
-                st.write("Assistant: " + message)
-                st.write("---")
+    # Display chat history
+    st.subheader("Chat History")
+    for role, message in st.session_state.chat_history:
+        if role == "user":
+            st.write("You: " + message)
+        else:
+            st.write("Assistant: " + message)
+            st.write("---")
