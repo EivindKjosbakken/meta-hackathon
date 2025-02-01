@@ -1,5 +1,49 @@
+# Virtual Environment
 .venv/
 .env
+
+# Streamlit
 .streamlit/secrets.toml
+
+# Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Build output
+frontend/out/
+frontend/build/
+frontend/dist/
+frontend/*.egg-info/
+
+
+# Next.js
+/.next/
+/out/
+/build/
+
+# Node
+/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Media
 *.jpg
+*.jpeg
+*.png
+*.gif
