@@ -20,7 +20,8 @@ CORS(app, resources={
         "origins": [
             "http://localhost:3000",  # Development
             "http://localhost:5173",  # Vite default
-            "https://your-production-domain.com"  # Add your production domain
+            "https://meta-hackathon-1.onrender.com",  # Production domain
+            "https://meta-hackathon-1.onrender.com/"  # Production domain with trailing slash
         ],
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"],
