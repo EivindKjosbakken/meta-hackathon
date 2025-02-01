@@ -8,7 +8,7 @@ from fuzzywuzzy import fuzz
 from nebius_vision import vision_inference
 from rag_fhi import FHI_recommendations
 import nltk 
-nltk.download("stopwords")
+nltk.download("stopwords", download_dir="./")
 # Load secrets
 NEBIUS_API_KEY = st.secrets["NEBIUS_API_KEY"]
 NORSK_GPT_API_KEY = st.secrets["NORSK_GPT_API_KEY"]
