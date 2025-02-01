@@ -4,5 +4,9 @@ openai
 black
 streamlit
 PyPDF2
-streamlit
 watchdog
+flask
+flask-swagger-ui
+Werkzeug
+fuzzywuzzy
+python-Levenshtein
