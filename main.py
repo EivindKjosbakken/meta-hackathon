@@ -294,18 +294,18 @@ if st.session_state.step == 1:
             st.subheader("📋 Journal Summary")
             st.info(st.session_state.summary)
 
-        # Add audio version button
-        if st.button("🔊 Listen to Audio Version"):
-            audio_text = f"""
-            Emergency Call History: {st.session_state.patient_info}
-            
-            Journal Summary: {st.session_state.summary}
-            """
-            text_to_speech(audio_text)
+            # Add audio version button
+            if st.button("🔊 Listen to Audio Version"):
+                audio_text = f"""
+                Emergency Call History: {st.session_state.patient_info}
+                
+                Journal Summary: {st.session_state.summary}
+                """
+                text_to_speech(audio_text)
 
-        if st.button("Continue to Assessment"):
-            st.session_state.step = 2
-            st.rerun()
+            if st.button("Continue to Assessment"):
+                st.session_state.step = 2
+                st.rerun()
 
 # Step 2: Assessment
 elif st.session_state.step == 2:
@@ -477,9 +477,17 @@ else:
             # Display analysis
             st.write(analysis)
 
+            # Add audio version for analysis
+            if st.button("🔊 Listen to Analysis"):
+                text_to_speech(analysis)
+
             # Display recommendations summary
             st.subheader("Relevant Health Recommendations")
             st.info(recommendations_summary)
+
+            # Add audio version for recommendations
+            if st.button("🔊 Listen to Recommendations"):
+                text_to_speech(recommendations_summary)
 
             with st.expander("View Original Recommendations"):
                 st.write(fhi_recommendations)
