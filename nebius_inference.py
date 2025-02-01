@@ -5,7 +5,7 @@ from openai import OpenAI
 load_dotenv()
 
 api_key = environ.get("NEBIUS_API_KEY")
-temperature = environ.get("TEMPERATURE", 0.1)
+temperature = environ.get("TEMPERATURE", 0.0)
 
 # MODEL = "meta-llama/Llama-3.3-70B-Instruct"
 MODEL = "meta-llama/Llama-3.3-70B-Instruct-fast"

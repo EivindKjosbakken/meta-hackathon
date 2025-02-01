@@ -44,8 +44,9 @@ Base your answer only on the information provided in the document and images (if
         try:
             # Create a temporary directory if it doesn't exist
             import tempfile
+
             temp_dir = tempfile.gettempdir()
-            
+
             # Get temporary file paths for the images
             image_paths = []
             for idx, image in enumerate(images):
