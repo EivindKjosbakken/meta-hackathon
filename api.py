@@ -9,6 +9,7 @@ from nebius_vision import vision_inference
 from nebius_inference import inference
 from dotenv import load_dotenv
 from flask_swagger_ui import get_swaggerui_blueprint
+from os import environ
 
 load_dotenv()
 
@@ -286,4 +287,6 @@ def analyze_image():
         })
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000) 
+    # Use PORT environment variable if available (for Render deployment)
+    port = int(environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port) 
