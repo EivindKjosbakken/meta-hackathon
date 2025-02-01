@@ -13,6 +13,7 @@ export interface JournalEntry {
   type: "regular" | "emergency" | "followup"
   symptoms?: string[]
   medications?: string[]
+  summary?: string
 }
 
 export interface EmergencyLog {

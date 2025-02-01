@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Send, AlertTriangle, Loader2 } from "lucide-react"
 import { mockChatResponse } from "@/lib/mock-data"
 import type { Patient, Message, CaseAnalysis, ActionPoint } from "@/types/patient"
+import { TextToSpeech } from "@/components/text-to-speech"
 
 interface ChatInterfaceProps {
   patient: Patient
@@ -78,8 +79,10 @@ export function ChatInterface({ patient, analysis }: ChatInterfaceProps) {
         }
       `}
       >
-        <AlertTriangle className="h-4 w-4" />
-        <AlertDescription className="text-sm">{analysis.summary}</AlertDescription>
+        <div className="flex justify-between items-start gap-4">
+          <AlertDescription className="text-sm">{analysis.summary}</AlertDescription>
+          <TextToSpeech text={analysis.summary} />
+        </div>
       </Alert>
 
       {/* Action Points */}

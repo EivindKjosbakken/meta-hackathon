@@ -175,10 +175,10 @@ def load_patient_journals():
     for filename in os.listdir(journals_dir):
         if filename.endswith(".pdf"):
             try:
-                if " - " in filename:
-                    name_part, numbers = filename.replace(".pdf", "").split(" - ")
+                if " - " in filename or " – " in filename:  # Handle both separators
+                    name_part, numbers = filename.replace(".pdf", "").replace(" – ", " - ").split(" - ")
                     dob, personal_number = numbers.split(" ")
-                    search_string = f"{name_part.lower()} {dob} {personal_number}"
+                    search_string = f"{name_part.lower()} - {dob} {personal_number}"
                 else:
                     search_string = filename.replace(".pdf", "").lower()
                 journals[search_string] = os.path.join(journals_dir, filename)
@@ -222,6 +222,9 @@ def search_patients():
 @app.route("/api/load_journal", methods=["GET"])
 def load_journal():
     patient_id = request.args.get("patient_id")
+    print(f"Requested patient_id: {patient_id}")
+    print(f"Available patient_ids: {list(patient_journals.keys())}")
+    
     if not patient_id or patient_id not in patient_journals:
         return jsonify({"error": "Invalid patient_id"}), 400
 

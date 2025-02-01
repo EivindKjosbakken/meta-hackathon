@@ -65,24 +65,50 @@ export function PatientSearch({ onSelectPatient }: PatientSearchProps) {
     }
   }
 
-  const handleSelect = (result: SearchResult) => {
-    // Parse "kari nordmann – 250795 67890" format
-    const [namePart, idPart] = result.name.split(" – ")
+  const handleSelect = async (result: SearchResult) => {
+    // Parse both hyphen and en dash formats
+    const [namePart, idPart] = result.name.split(/ - | – /)
     const [dateStr, personalNumber] = idPart ? idPart.split(" ") : ["", ""]
     
     // Format date from DDMMYY to a more readable format
     const formattedDate = dateStr ? 
       `${dateStr.slice(0,2)}.${dateStr.slice(2,4)}.${dateStr.slice(4)}` : ""
 
-    const patient: Patient = {
-      id: personalNumber || result.name,
-      name: namePart,
-      dateOfBirth: formattedDate,
-      journalEntries: [],
-      emergencyLogs: [],
-    }
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/load_journal?patient_id=${encodeURIComponent(result.name)}`,
+        {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+        }
+      )
 
-    onSelectPatient(patient)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      
+      const patient: Patient = {
+        id: result.name,
+        name: namePart,
+        dateOfBirth: formattedDate,
+        journalEntries: [{
+          id: '1',
+          date: new Date().toISOString(),
+          description: data.text,
+          type: 'regular',
+          summary: data.summary
+        }],
+        emergencyLogs: [],
+      }
+
+      onSelectPatient(patient)
+    } catch (error) {
+      console.error('Error loading patient journal:', error)
+    }
   }
 
   return (
