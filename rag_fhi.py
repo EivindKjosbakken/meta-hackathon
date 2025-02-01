@@ -4,11 +4,16 @@ from typing import List, Dict
 # from load_json import load_fhi_recommendations
 import re
 import json
-from llama_index.core.schema import Document
 from typing import List, Optional
 import requests
 import os
 from datetime import datetime, timedelta
+
+# Create a simple Document class first
+class Document:
+    def __init__(self, text: str, metadata: dict = None):
+        self.text = text
+        self.metadata = metadata or {}
 
 def is_health_recommendations_outdated(filename):
     # Check if file exists
@@ -105,14 +110,22 @@ class FHI_recommendations:
         # Use the default all-MiniLM-L6-v2 embedding function
         self.embedding_function = embedding_functions.DefaultEmbeddingFunction()
         
-        # Create or get existing collection
-        self.collection = self.client.create_collection(
-            name=collection_name,
-            embedding_function=self.embedding_function
-        )
+        try:
+            # Try to get existing collection first
+            self.collection = self.client.get_collection(
+                name=collection_name,
+                embedding_function=self.embedding_function
+            )
+        except:
+            # Create new collection if it doesn't exist
+            self.collection = self.client.create_collection(
+                name=collection_name,
+                embedding_function=self.embedding_function
+            )
 
-        docs = load_fhi_recommendations()  # Your existing function
-        self.load(docs[:50])
+        docs = load_fhi_recommendations()
+        if docs:  # Only load if we have documents
+            self.load(docs[:50])
 
     def load(self, documents: List[Dict[str, str]]) -> None:
         """

@@ -1,3 +1,5 @@
+import nltk 
+nltk.download("stopwords", download_dir="./")
 import streamlit as st
 import PyPDF2
 from io import BytesIO
