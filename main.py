@@ -34,7 +34,6 @@ Only return the summary, no other text."""
 def get_emergency_log_summary(patient_info):
     """given patient name - personal number, retrieve summary of emergency call log"""
     # first load the log
-    patient_info = "Kari Nordmann – 250795 67890"
     log_path = os.path.join("data", "emergency_call_logs", f"{patient_info}.txt")
     log_text = open(log_path, "r").read()
     prompt = f"""This is an emergency call log, showing the patient's emergency call history. Return 3 main points that are most relevant to the patient's health, for emergency responders to know.
@@ -55,7 +54,6 @@ def get_document_response(text, question, images=None):
 
                 Base your answer only on the information provided in the document and images (if any). If the answer cannot be found in the provided information, please say so.
                 """
-    print("NUM IMAGES", len(images))
     if images:
         try:
             # Create a temporary directory if it doesn't exist
@@ -165,7 +163,7 @@ st.markdown("---")
 
 # Step 1: Patient Search
 if st.session_state.step == 1:
-    st.title("Patient Search")
+    st.title("🔍 Patient Search")
     search_query = st.text_input("Search by name or number:").lower()
 
     if search_query:
@@ -273,7 +271,6 @@ elif st.session_state.step == 2:
 
 # Step 3: Analysis & Chat
 else:
-    st.title("Analysis & Chat")
     
     with st.spinner("Analyzing all patient data..."):
         analysis_prompt = f"""
@@ -281,43 +278,42 @@ else:
         The images are taken on-scene from an ambulance helping the patient with what might be a medical emergency.
         Analyze the patient's medical journal, current images, and the following additional information:
         
-        ADDITIONAL NOTES:
+        ADDITIONAL NOTES FROM AMBULANCE PERSONNEL ON SCENE:
         {st.session_state.additional_info}
+
+        Patient journal (medical history):
+        {st.session_state.pdf_text}
         
+        Emergency call log:
+        {st.session_state.patient_info}
+
         Provide a structured assessment with clear action points for the ambulance personnel.
 
-        ASSESSMENT:
-        1. Critical Findings:
-           - Identify immediate life-threatening conditions
-           - Note vital sign abnormalities
-           - Document concerning physical findings from images
+        1. Key insights (headline 1, two - three bullet points)
+            - Discover connections between the patient's medical history, the images, the additional notes, and the emergency call log.
+            - Any critical information ambulance personnel should know.
+        2. Action points (headline 2, two - three bullet points)
+            - List specific interventions needed
+            - Prioritize by urgency (immediate/urgent/non-urgent)
+            - Recommend medications with dosages
+            - Specify care procedures
         
-        2. Medical History Context:
-           - List relevant past conditions
-           - Note current medications
-           - Highlight allergies and contraindications
-        
-        ACTION POINTS:
-        1. Immediate Actions Required:
-           - List specific interventions needed
-           - Prioritize by urgency (immediate/urgent/non-urgent)
-        
-        2. Monitoring Requirements:
-           - Specify vital signs to track
-           - Define monitoring intervals
-        
-        3. Treatment Plan:
-           - Recommend medications with dosages
-           - Specify care procedures
+        Respond in the following format:
+        ## 🔑 Key insights
+        - Bullet point 1
+        - Bullet point 2
+        ## ⚡ Action points
+        - Bullet point 1
+        - Bullet point 2
 
-        Please provide clear, actionable recommendations based on the findings."""
+        Make the analysis concise and to the point.
+        """
 
         analysis = vision_inference(
             st.session_state.patient_images,
             analysis_prompt,
         )
 
-        st.subheader("Analysis Results")
         st.write(analysis)
 
     st.markdown("---")
@@ -345,13 +341,13 @@ else:
                 st.write("Assistant: " + message)
                 st.write("---")
 
-# Add a "Start Over" button that's always visible at the bottom
-if st.button("Start Over"):
-    st.session_state.step = 1
-    st.session_state.pdf_text = None
-    st.session_state.summary = None
-    st.session_state.chat_history = []
-    st.session_state.patient_images = []
-    st.session_state.additional_info = ""
-    st.session_state.show_camera = False
-    st.rerun()
+# # Add a "Start Over" button that's always visible at the bottom
+# if st.button("Start Over"):
+#     st.session_state.step = 1
+#     st.session_state.pdf_text = None
+#     st.session_state.summary = None
+#     st.session_state.chat_history = []
+#     st.session_state.patient_images = []
+#     st.session_state.additional_info = ""
+#     st.session_state.show_camera = False
+#     st.rerun()
