@@ -5,6 +5,7 @@ from nebius_inference import inference
 import os
 from datetime import datetime
 from fuzzywuzzy import fuzz
+from nebius_vision import vision_inference
 
 # Load secrets
 NEBIUS_API_KEY = st.secrets["NEBIUS_API_KEY"]
@@ -30,16 +31,35 @@ Please make the summary concise but include all important points."""
     return inference(prompt)
 
 
-def get_document_response(text, question):
-    prompt = f"""This is a patient journal, showing the medical history of the patient. Use this information if relevant when answering questions
+def get_document_response(text, question, images=None):
+    base_prompt = f"""This is a patient journal, showing the medical history of the patient. Use this information if relevant when answering questions.
 
 {text}
 
 Please answer this question: {question}
 
-Base your answer only on the information provided in the document. If the answer cannot be found in the document, please say so."""
+Base your answer only on the information provided in the document and images (if any). If the answer cannot be found in the provided information, please say so."""
 
-    return inference(prompt)
+    if images:
+        # Get temporary file paths for the images
+        image_paths = []
+        for idx, image in enumerate(images):
+            temp_path = f"data/temp_image_{idx}.jpg"
+            with open(temp_path, "wb") as f:
+                f.write(image.getbuffer())
+            image_paths.append(temp_path)
+
+        # Use vision inference when images are present
+        response = vision_inference(image_paths, base_prompt)
+
+        # Clean up temporary files
+        for path in image_paths:
+            os.remove(path)
+
+        return response
+    else:
+        # Use regular inference when no images
+        return inference(base_prompt)
 
 
 def load_patient_journals():
@@ -215,6 +235,59 @@ if st.session_state.patient_images:
         st.session_state.patient_images = []
         st.rerun()
 
+    # Add analyze button
+    if st.button("Analyze Patient Images and Journal"):
+        if st.session_state.pdf_text is None:
+            st.warning("Please load a patient journal before analyzing.")
+        else:
+            with st.spinner("Analyzing patient data..."):
+                analysis_prompt = """You are an expert medical professional.
+                The images are taken on-scene from an ambulance helping the patient with what might be a medical emergency.
+                Analyze the patient's medical journal and current images and provide a structured assessment with clear action points for the ambulance personel.
+
+                ASSESSMENT:
+                1. Critical Findings:
+                   - Identify immediate life-threatening conditions
+                   - Note vital sign abnormalities
+                   - Document concerning physical findings from images
+                
+                2. Medical History Context:
+                   - List relevant past conditions
+                   - Note current medications
+                   - Highlight allergies and contraindications
+                
+                ACTION POINTS:
+                1. Immediate Actions Required:
+                   - List specific interventions needed
+                   - Prioritize by urgency (immediate/urgent/non-urgent)
+                
+                2. Monitoring Requirements:
+                   - Specify vital signs to track
+                   - Define monitoring intervals
+                
+                3. Treatment Plan:
+                   - Recommend medications with dosages
+                   - Specify care procedures
+                
+                4. Transport/Referral Decisions:
+                   - Determine appropriate destination
+                   - Specify level of care needed
+                
+                5. Additional Resources Needed:
+                   - List required equipment/specialists
+                   - Identify backup support needed
+
+                Please provide clear, actionable recommendations based on the findings."""
+
+                analysis = get_document_response(
+                    st.session_state.pdf_text,
+                    analysis_prompt,
+                    images=st.session_state.patient_images,
+                )
+
+                st.subheader("Analysis Results")
+                st.write(analysis)
+
 # Chat interface
 st.subheader("Chat with your patient")
 user_question = st.text_input("Ask a question about your patient:")
@@ -227,10 +300,16 @@ if st.button("Send"):
             # Add user question to chat history
             st.session_state.chat_history.append(("user", user_question))
 
-            # Get response
+            # Get response using both text and images
             with st.spinner("Getting response..."):
                 response = get_document_response(
-                    st.session_state.pdf_text, user_question
+                    st.session_state.pdf_text,
+                    user_question,
+                    images=(
+                        st.session_state.patient_images
+                        if st.session_state.patient_images
+                        else None
+                    ),
                 )
 
             # Add response to chat history
