@@ -42,7 +42,7 @@ def encode_image(image_input):
 
 def vision_inference(image_inputs, prompt: str) -> str:
     # Ensure image_inputs is a list
-    if isinstance(image_inputs, (str, bytes)):
+    if not isinstance(image_inputs, list):
         image_inputs = [image_inputs]
 
     # Create content list with prompt
@@ -51,11 +51,7 @@ def vision_inference(image_inputs, prompt: str) -> str:
     # Process each image
     for image_input in image_inputs:
         try:
-            # Convert image_input to string if it's a PathLike object
-            image_path = (
-                str(image_input) if hasattr(image_input, "__fspath__") else image_input
-            )
-            base64_image = encode_image(image_path)
+            base64_image = encode_image(image_input)
             content.append(
                 {
                     "type": "image_url",
@@ -70,12 +66,16 @@ def vision_inference(image_inputs, prompt: str) -> str:
     if len(content) < 2:  # Just the prompt, no images
         raise ValueError("No images were successfully processed")
 
-    completion = client.chat.completions.create(
-        model=MODEL,
-        messages=[{"role": "user", "content": content}],
-        temperature=float(temperature),
-    )
-    return completion.choices[0].message.content
+    try:
+        completion = client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "user", "content": content}],
+            temperature=float(temperature),
+        )
+        return completion.choices[0].message.content
+    except Exception as e:
+        print(f"Error during API call: {e}")
+        raise
 
 
 # # Example usage
