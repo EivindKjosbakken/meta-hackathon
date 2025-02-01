@@ -9,6 +9,7 @@ from datetime import datetime
 from fuzzywuzzy import fuzz
 from nebius_vision import vision_inference
 from rag_fhi import FHI_recommendations
+from tts import text_to_speech
 
 # ------------------------------
 # 1. PAGE CONFIG & CUSTOM STYLES
@@ -293,8 +294,47 @@ if st.session_state.step == 1:
             st.subheader("📋 Journal Summary")
             st.info(st.session_state.summary)
 
-            if st.button("Continue to Assessment"):
-                st.session_state.step = 2
+        # Add audio version button
+        if st.button("🔊 Listen to Audio Version"):
+            audio_text = f"""
+            Emergency Call History: {st.session_state.patient_info}
+            
+            Journal Summary: {st.session_state.summary}
+            """
+            text_to_speech(audio_text)
+
+        if st.button("Continue to Assessment"):
+            st.session_state.step = 2
+            st.rerun()
+
+# Step 2: Assessment
+elif st.session_state.step == 2:
+    st.title("Patient Assessment")
+    
+    # Additional information text area
+    st.subheader("Additional Information")
+    st.session_state.additional_info = st.text_area(
+        "Enter any additional observations or notes:",
+        value=st.session_state.additional_info,
+        height=100
+    )
+
+    st.subheader("Patient Photos")
+    if st.button("Toggle Camera"):
+        st.session_state.show_camera = not st.session_state.show_camera
+        st.rerun()
+
+    if st.session_state.show_camera:
+        camera_image = st.camera_input("Take a picture")
+        if camera_image:
+            with st.spinner("Processing and saving image..."):
+                os.makedirs("data/patient_images", exist_ok=True)
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                image_path = f"data/patient_images/patient_photo_{timestamp}.jpg"
+                with open(image_path, "wb") as f:
+                    f.write(camera_image.getbuffer())
+                st.session_state.patient_images.append(camera_image)
+                st.session_state.show_camera = False
                 st.rerun()
 
         st.markdown("</div>", unsafe_allow_html=True)

@@ -1,6 +1,7 @@
 # Virtual Environment
 .venv/
 .env
+/testvenv3
 
 # Streamlit
 .streamlit/secrets.toml
