@@ -10,10 +10,23 @@ from nebius_inference import inference
 from dotenv import load_dotenv
 from flask_swagger_ui import get_swaggerui_blueprint
 from os import environ
+from flask_cors import CORS
 
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app, resources={
+    r"/api/*": {
+        "origins": [
+            "http://localhost:3000",  # Development
+            "http://localhost:5173",  # Vite default
+            "https://your-production-domain.com"  # Add your production domain
+        ],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "expose_headers": ["Content-Range", "X-Content-Range"]
+    }
+})
 
 # Swagger configuration
 SWAGGER_URL = "/docs"
