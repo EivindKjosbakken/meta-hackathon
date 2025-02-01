@@ -2,6 +2,9 @@ import streamlit as st
 import PyPDF2
 from io import BytesIO
 from nebius_inference import inference
+import os
+from datetime import datetime
+from fuzzywuzzy import fuzz
 
 # Load secrets
 NEBIUS_API_KEY = st.secrets["NEBIUS_API_KEY"]
@@ -28,7 +31,7 @@ Please make the summary concise but include all important points."""
 
 
 def get_document_response(text, question):
-    prompt = f"""Given the following document content:
+    prompt = f"""This is a patient journal, showing the medical history of the patient. Use this information if relevant when answering questions
 
 {text}
 
@@ -39,9 +42,44 @@ Base your answer only on the information provided in the document. If the answer
     return inference(prompt)
 
 
+def load_patient_journals():
+    journals_dir = "data/journals"
+    journals = {}
+    for filename in os.listdir(journals_dir):
+        if filename.endswith(".pdf"):
+            try:
+                if " - " in filename:
+                    # Original format: "Ola Hansen - 120384 12345.pdf"
+                    name_part, numbers = filename.replace(".pdf", "").split(" - ")
+                    dob, personal_number = numbers.split(" ")
+                    search_string = f"{name_part.lower()} {dob} {personal_number}"
+                else:
+                    # New format: "patient_journal_PT10426.pdf"
+                    search_string = filename.replace(".pdf", "").lower()
+
+                journals[search_string] = os.path.join(journals_dir, filename)
+            except ValueError:
+                # Log error without showing warning
+                print(f"Could not parse filename: {filename}")
+                continue
+    return journals
+
+
+def fuzzy_search(query, choices, threshold=65):
+    """
+    Perform fuzzy search on a list of choices and return matches above threshold.
+    """
+    results = []
+    for choice in choices:
+        ratio = fuzz.partial_ratio(query.lower(), choice.lower())
+        if ratio >= threshold:
+            results.append((choice, ratio))
+    return sorted(results, key=lambda x: x[1], reverse=True)
+
+
 # Set up the Streamlit page
 st.set_page_config(page_title="PDF Chat Assistant", layout="wide")
-st.title("PDF Document Chat Assistant")
+st.title("Ambulance assistant")
 
 # Initialize session state variables
 if "pdf_text" not in st.session_state:
@@ -50,44 +88,142 @@ if "summary" not in st.session_state:
     st.session_state.summary = None
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
+if "patient_journals" not in st.session_state:
+    st.session_state.patient_journals = load_patient_journals()
 
-# Move file upload to sidebar
+# Sidebar content
 with st.sidebar:
-    uploaded_file = st.file_uploader("Upload your PDF document", type=["pdf"])
+    st.subheader("Patient Search")
+    search_query = st.text_input("Search by name or number:").lower()
+
+    if search_query:
+        # Fuzzy search through available journals
+        journal_keys = list(st.session_state.patient_journals.keys())
+        matching_results = fuzzy_search(search_query, journal_keys)
+
+        if matching_results:
+            # Limit to top 3 matches
+            top_matches = matching_results[:3]
+            matching_journals = {
+                key: st.session_state.patient_journals[key]
+                for key, score in top_matches
+            }
+
+            # Show match scores in the selection
+            selected_journal = st.selectbox(
+                "Select patient journal:",
+                options=[key for key, score in top_matches],
+                format_func=lambda x: f"{x.split(' ')[0].title()} {x.split(' ')[1].title()}",
+            )
+
+            if st.button("Load Journal"):
+                # Load the selected PDF
+                with open(matching_journals[selected_journal], "rb") as file:
+                    st.session_state.pdf_text = extract_text_from_pdf(file)
+                    # Generate summary
+                    with st.spinner("Generating summary..."):
+                        st.session_state.summary = get_pdf_summary(
+                            st.session_state.pdf_text
+                        )
+                    st.rerun()
+        else:
+            st.warning("No matching patients found")
 
     if st.session_state.pdf_text is not None:
-        if st.button("Process another document"):
+        if st.button("Clear current journal"):
             st.session_state.pdf_text = None
             st.session_state.summary = None
             st.session_state.chat_history = []
-            st.experimental_rerun()
+            st.rerun()
 
 # Main content
-if uploaded_file is not None and st.session_state.pdf_text is None:
-    # Extract text from PDF
-    st.session_state.pdf_text = extract_text_from_pdf(uploaded_file)
-
-    # Generate summary
-    with st.spinner("Generating summary..."):
-        st.session_state.summary = get_pdf_summary(st.session_state.pdf_text)
-
-# Add camera input to main content area
-camera_image = st.camera_input("Take a picture")
-
-if camera_image is not None:
-    st.image(camera_image, caption="Captured Image", use_column_width=True)
-
 # Display summary if available
-if st.session_state.summary:
-    st.subheader("Document Summary")
+st.subheader("Document Summary")
+if st.session_state.pdf_text is not None:
     st.write(st.session_state.summary)
+else:
+    st.write(
+        "No journal loaded. Please search and load a patient journal from the sidebar."
+    )
 
-    # Chat interface
-    st.subheader("Chat with your document")
-    user_question = st.text_input("Ask a question about your document:")
+# Add camera capture functionality
+st.subheader("Take Patient Photos")
 
-    if st.button("Send"):
-        if user_question:
+# Initialize session state for storing multiple images if not exists
+if "patient_images" not in st.session_state:
+    st.session_state.patient_images = []
+if "show_camera" not in st.session_state:
+    st.session_state.show_camera = False
+
+# Add button to toggle camera
+if st.button("Toggle Camera"):
+    st.session_state.show_camera = not st.session_state.show_camera
+    st.rerun()
+
+# Show camera only when toggled on
+if st.session_state.show_camera:
+    camera_image = st.camera_input("Take a picture")
+
+    if camera_image:
+        # Show loading spinner while processing
+        with st.spinner("Processing and saving image..."):
+            # Create a directory for storing images if it doesn't exist
+            os.makedirs("data/patient_images", exist_ok=True)
+
+            # Generate timestamp for unique filename
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            image_path = f"data/patient_images/patient_photo_{timestamp}.jpg"
+
+            # Save the captured image
+            with open(image_path, "wb") as f:
+                f.write(camera_image.getbuffer())
+
+            # Add image to session state
+            st.session_state.patient_images.append(camera_image)
+
+            st.success("Image saved successfully!")
+            # Remove automatic camera toggle
+            st.session_state.show_camera = False
+            st.rerun()
+
+# Display all captured images in a grid layout
+if st.session_state.patient_images:
+    st.write("Captured patient photos:")
+
+    # Create a grid layout with 4 columns
+    cols = st.columns(4)
+
+    # Create a list to store indices of images to remove
+    images_to_remove = []
+
+    for idx, image in enumerate(st.session_state.patient_images):
+        col_idx = idx % 4  # Determine which column to place the image
+        with cols[col_idx]:
+            # Display image with reduced size
+            st.image(image, caption=f"Photo {idx + 1}", width=150)
+            # Add delete button for each image
+            if st.button("❌", key=f"delete_{idx}"):
+                images_to_remove.append(idx)
+
+    # Remove marked images (in reverse order to maintain correct indices)
+    for idx in sorted(images_to_remove, reverse=True):
+        st.session_state.patient_images.pop(idx)
+        st.rerun()
+
+    # Add button to clear all images
+    if st.button("Clear all photos"):
+        st.session_state.patient_images = []
+        st.rerun()
+
+# Chat interface
+st.subheader("Chat with your patient")
+user_question = st.text_input("Ask a question about your patient:")
+
+if st.button("Send"):
+    if user_question:
+        if st.session_state.pdf_text is None:
+            st.warning("Please load a patient journal first to ask questions.")
+        else:
             # Add user question to chat history
             st.session_state.chat_history.append(("user", user_question))
 
@@ -100,11 +236,14 @@ if st.session_state.summary:
             # Add response to chat history
             st.session_state.chat_history.append(("assistant", response))
 
-    # Display chat history
-    st.subheader("Chat History")
+# Display chat history
+st.subheader("Chat History")
+if st.session_state.chat_history:
     for role, message in st.session_state.chat_history:
         if role == "user":
             st.write("You: " + message)
         else:
             st.write("Assistant: " + message)
             st.write("---")
+else:
+    st.write("No chat history yet.")
