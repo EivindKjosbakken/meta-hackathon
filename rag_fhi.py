@@ -112,7 +112,7 @@ class FHI_recommendations:
         )
 
         docs = load_fhi_recommendations()  # Your existing function
-        self.load(docs[:300])
+        self.load(docs[:50])
 
     def load(self, documents: List[Dict[str, str]]) -> None:
         """
