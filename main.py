@@ -8,6 +8,7 @@ NEBIUS_API_KEY = st.secrets["NEBIUS_API_KEY"]
 NORSK_GPT_API_KEY = st.secrets["NORSK_GPT_API_KEY"]
 TEMPERATURE = st.secrets["TEMPERATURE"]
 
+
 def extract_text_from_pdf(pdf_file):
     pdf_reader = PyPDF2.PdfReader(pdf_file)
     text = ""
@@ -53,11 +54,6 @@ if "chat_history" not in st.session_state:
 # Move file upload to sidebar
 with st.sidebar:
     uploaded_file = st.file_uploader("Upload your PDF document", type=["pdf"])
-    # Replace image uploader with camera input
-    camera_image = st.camera_input("Take a picture")
-
-    if camera_image is not None:
-        st.image(camera_image, caption='Captured Image', use_column_width=True)
 
     if st.session_state.pdf_text is not None:
         if st.button("Process another document"):
@@ -74,6 +70,12 @@ if uploaded_file is not None and st.session_state.pdf_text is None:
     # Generate summary
     with st.spinner("Generating summary..."):
         st.session_state.summary = get_pdf_summary(st.session_state.pdf_text)
+
+# Add camera input to main content area
+camera_image = st.camera_input("Take a picture")
+
+if camera_image is not None:
+    st.image(camera_image, caption="Captured Image", use_column_width=True)
 
 # Display summary if available
 if st.session_state.summary:
