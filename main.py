@@ -41,22 +41,34 @@ Please answer this question: {question}
 Base your answer only on the information provided in the document and images (if any). If the answer cannot be found in the provided information, please say so."""
 
     if images:
-        # Get temporary file paths for the images
-        image_paths = []
-        for idx, image in enumerate(images):
-            temp_path = f"data/temp_image_{idx}.jpg"
-            with open(temp_path, "wb") as f:
-                f.write(image.getbuffer())
-            image_paths.append(temp_path)
+        try:
+            # Create a temporary directory if it doesn't exist
+            import tempfile
+            temp_dir = tempfile.gettempdir()
+            
+            # Get temporary file paths for the images
+            image_paths = []
+            for idx, image in enumerate(images):
+                temp_path = os.path.join(temp_dir, f"temp_image_{idx}.jpg")
+                with open(temp_path, "wb") as f:
+                    f.write(image.getbuffer())
+                image_paths.append(temp_path)
 
-        # Use vision inference when images are present
-        response = vision_inference(image_paths, base_prompt)
+            # Use vision inference when images are present
+            response = vision_inference(image_paths, base_prompt)
 
-        # Clean up temporary files
-        for path in image_paths:
-            os.remove(path)
+            # Clean up temporary files
+            for path in image_paths:
+                try:
+                    os.remove(path)
+                except Exception as e:
+                    print(f"Error removing temporary file {path}: {e}")
 
-        return response
+            return response
+        except Exception as e:
+            st.error(f"Error processing images: {e}")
+            # Fallback to text-only response
+            return inference(base_prompt)
     else:
         # Use regular inference when no images
         return inference(base_prompt)
