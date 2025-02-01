@@ -16,19 +16,15 @@ load_dotenv()
 app = Flask(__name__)
 
 # Swagger configuration
-SWAGGER_URL = '/docs'
-API_URL = '/static/swagger.json'
+SWAGGER_URL = "/docs"
+API_URL = "/static/swagger.json"
 swaggerui_blueprint = get_swaggerui_blueprint(
-    SWAGGER_URL,
-    API_URL,
-    config={
-        'app_name': "Patient Journal API"
-    }
+    SWAGGER_URL, API_URL, config={"app_name": "Patient Journal API"}
 )
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 # Create static folder if it doesn't exist
-os.makedirs('static', exist_ok=True)
+os.makedirs("static", exist_ok=True)
 
 # Create swagger.json
 swagger_config = {
@@ -36,7 +32,7 @@ swagger_config = {
     "info": {
         "title": "Patient Journal API",
         "description": "API for managing patient journals and health analysis",
-        "version": "1.0"
+        "version": "1.0",
     },
     "paths": {
         "/api/search_patients": {
@@ -48,14 +44,10 @@ swagger_config = {
                         "in": "query",
                         "type": "string",
                         "required": True,
-                        "description": "Search query for patient name or ID"
+                        "description": "Search query for patient name or ID",
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "List of matching patients"
-                    }
-                }
+                "responses": {"200": {"description": "List of matching patients"}},
             }
         },
         "/api/load_journal": {
@@ -67,14 +59,10 @@ swagger_config = {
                         "in": "query",
                         "type": "string",
                         "required": True,
-                        "description": "Patient ID"
+                        "description": "Patient ID",
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "Journal text and summary"
-                    }
-                }
+                "responses": {"200": {"description": "Journal text and summary"}},
             }
         },
         "/api/ask_question": {
@@ -89,16 +77,12 @@ swagger_config = {
                             "type": "object",
                             "properties": {
                                 "question": {"type": "string"},
-                                "text": {"type": "string"}
-                            }
-                        }
+                                "text": {"type": "string"},
+                            },
+                        },
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "Answer to the question"
-                    }
-                }
+                "responses": {"200": {"description": "Answer to the question"}},
             }
         },
         "/api/analyze_image": {
@@ -111,39 +95,37 @@ swagger_config = {
                         "in": "formData",
                         "type": "file",
                         "required": True,
-                        "description": "Image file to analyze"
+                        "description": "Image file to analyze",
                     },
                     {
                         "name": "journal_text",
                         "in": "formData",
                         "type": "string",
                         "required": False,
-                        "description": "Optional journal text for context"
-                    }
+                        "description": "Optional journal text for context",
+                    },
                 ],
-                "responses": {
-                    "200": {
-                        "description": "Image analysis results"
-                    }
-                }
+                "responses": {"200": {"description": "Image analysis results"}},
             }
-        }
-    }
+        },
+    },
 }
 
 # Write swagger.json
-with open('static/swagger.json', 'w') as f:
+with open("static/swagger.json", "w") as f:
     import json
+
     json.dump(swagger_config, f)
 
 # Configure upload folders
-UPLOAD_FOLDER = 'data/uploads'
-PATIENT_IMAGES_FOLDER = 'data/patient_images'
+UPLOAD_FOLDER = "data/uploads"
+PATIENT_IMAGES_FOLDER = "data/patient_images"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PATIENT_IMAGES_FOLDER, exist_ok=True)
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB max file size
+
 
 def extract_text_from_pdf(pdf_file):
     pdf_reader = PyPDF2.PdfReader(pdf_file)
@@ -152,6 +134,7 @@ def extract_text_from_pdf(pdf_file):
         text += page.extract_text() + "\n"
     return text
 
+
 def get_pdf_summary(text):
     prompt = f"""Please provide a comprehensive summary of the following text:
     
@@ -159,6 +142,7 @@ def get_pdf_summary(text):
 
 Please make the summary concise but include all important points."""
     return inference(prompt)
+
 
 def get_document_response(text, question):
     prompt = f"""This is a patient journal, showing the medical history of the patient. Use this information if relevant when answering questions
@@ -169,6 +153,7 @@ Please answer this question: {question}
 
 Base your answer only on the information provided in the document. If the answer cannot be found in the document, please say so."""
     return inference(prompt)
+
 
 def load_patient_journals():
     journals_dir = "data/journals"
@@ -188,6 +173,7 @@ def load_patient_journals():
                 continue
     return journals
 
+
 def fuzzy_search(query, choices, threshold=65):
     results = []
     for choice in choices:
@@ -196,65 +182,71 @@ def fuzzy_search(query, choices, threshold=65):
             results.append((choice, ratio))
     return sorted(results, key=lambda x: x[1], reverse=True)
 
+
 # Load patient journals on startup
 patient_journals = load_patient_journals()
 
-@app.route('/api/search_patients', methods=['GET'])
+
+@app.route("/api/search_patients", methods=["GET"])
 def search_patients():
-    query = request.args.get('query', '').lower()
+    query = request.args.get("query", "").lower()
     if not query:
-        return jsonify({'error': 'Query parameter is required'}), 400
+        return jsonify({"error": "Query parameter is required"}), 400
 
     journal_keys = list(patient_journals.keys())
     matching_results = fuzzy_search(query, journal_keys)
-    
-    return jsonify({
-        'matches': [{'name': key, 'score': score} for key, score in matching_results[:3]]
-    })
 
-@app.route('/api/load_journal', methods=['GET'])
+    return jsonify(
+        {
+            "matches": [
+                {"name": key, "score": score} for key, score in matching_results[:3]
+            ]
+        }
+    )
+
+
+@app.route("/api/load_journal", methods=["GET"])
 def load_journal():
-    patient_id = request.args.get('patient_id')
+    patient_id = request.args.get("patient_id")
     if not patient_id or patient_id not in patient_journals:
-        return jsonify({'error': 'Invalid patient_id'}), 400
+        return jsonify({"error": "Invalid patient_id"}), 400
 
     try:
-        with open(patient_journals[patient_id], 'rb') as file:
+        with open(patient_journals[patient_id], "rb") as file:
             text = extract_text_from_pdf(file)
             summary = get_pdf_summary(text)
-            return jsonify({
-                'text': text,
-                'summary': summary
-            })
+            return jsonify({"text": text, "summary": summary})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
-@app.route('/api/ask_question', methods=['POST'])
+
+@app.route("/api/ask_question", methods=["POST"])
 def ask_question():
     data = request.json
-    if not data or 'question' not in data or 'text' not in data:
-        return jsonify({'error': 'Question and text are required'}), 400
+    if not data or "question" not in data or "text" not in data:
+        return jsonify({"error": "Question and text are required"}), 400
 
-    response = get_document_response(data['text'], data['question'])
-    return jsonify({'response': response})
+    response = get_document_response(data["text"], data["question"])
+    return jsonify({"response": response})
 
-@app.route('/api/analyze_image', methods=['POST'])
+
+@app.route("/api/analyze_image", methods=["POST"])
 def analyze_image():
-    if 'image' not in request.files:
-        return jsonify({'error': 'No image file provided'}), 400
+    if "image" not in request.files:
+        return jsonify({"error": "No image file provided"}), 400
 
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
+    file = request.files["image"]
+    if file.filename == "":
+        return jsonify({"error": "No selected file"}), 400
 
     if file:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = secure_filename(f"patient_photo_{timestamp}.jpg")
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         file.save(filepath)
 
         # Create a temporary file for analysis
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp_file:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp_file:
             file.seek(0)
             tmp_file.write(file.read())
             tmp_path = tmp_file.name
@@ -268,11 +260,11 @@ def analyze_image():
         4. Signs of distress or discomfort
         
         Provide a professional medical observation based on what you can see."""
-        
+
         analysis = vision_inference(tmp_path, health_prompt)
-        
+
         # If journal text is provided, search for relevant information
-        journal_text = request.form.get('journal_text')
+        journal_text = request.form.get("journal_text")
         relevant_info = None
         if journal_text:
             relevant_info = search_relevant_health_info(journal_text, analysis)
@@ -280,11 +272,9 @@ def analyze_image():
         # Clean up temporary file
         os.unlink(tmp_path)
 
-        return jsonify({
-            'filename': filename,
-            'analysis': analysis,
-            'relevant_info': relevant_info
-        })
+        return jsonify(
+            {"filename": filename, "analysis": analysis, "relevant_info": relevant_info}
+        )
 
 if __name__ == '__main__':
     # Use PORT environment variable if available (for Render deployment)
