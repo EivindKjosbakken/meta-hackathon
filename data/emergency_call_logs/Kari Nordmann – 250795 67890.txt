@@ -1,0 +1,23 @@
+Operator: Emergency services, what's your emergency?
+
+Caller: Hi, I need help. I'm getting these rashes all over my body and they're spreading really fast. I'm really worried.
+
+Operator: Can you tell me your name and location?
+
+Caller: My name is Kari Nordmann. I'm at Torggata 3 in Oslo.
+
+Operator: Are you having any difficulty breathing, Kari?
+
+Caller: No, not right now. But the rashes are really itchy and starting to swell up. I'm home alone and I'm getting scared.
+
+Operator: Try not to scratch the rashes. When did they start appearing?
+
+Caller: About 30 minutes ago. The only thing different is I used a new laundry detergent yesterday.
+
+Operator: I'm dispatching an ambulance to you now. Can you make your way to the main entrance to let them in when they arrive?
+
+Caller: Yes, I can do that.
+
+Operator: Good. Remove any tight clothing and let me know if you start having trouble breathing. I'll stay on the line with you until the ambulance arrives.
+
+Caller: Thank you. I'll go wait by the entrance now.
