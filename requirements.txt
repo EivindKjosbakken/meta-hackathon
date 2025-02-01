@@ -13,4 +13,5 @@ flask-swagger-ui
 Werkzeug
 fuzzywuzzy
 python-Levenshtein
+flask-cors
 
