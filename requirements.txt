@@ -5,10 +5,11 @@ black
 streamlit
 PyPDF2
 watchdog
-fuzzywuzzy
+fuzzywuzzy 
 python-Levenshtein
 flask
 flask-swagger-ui
 Werkzeug
 fuzzywuzzy
 python-Levenshtein
+
