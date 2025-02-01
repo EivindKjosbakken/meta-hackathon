@@ -6,3 +6,5 @@ streamlit
 PyPDF2
 streamlit
 watchdog
+fuzzywuzzy
+python-Levenshtein
