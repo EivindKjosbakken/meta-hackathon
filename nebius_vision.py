@@ -21,10 +21,10 @@ client = OpenAI(
 
 def encode_image(image_input):
     # If the input is already a base64 string, return it directly
-    if isinstance(image_input, str) and image_input.startswith('data:image'):
+    if isinstance(image_input, str) and image_input.startswith("data:image"):
         # Extract the base64 part if it's a data URL
-        return image_input.split(',')[1] if ',' in image_input else image_input
-    
+        return image_input.split(",")[1] if "," in image_input else image_input
+
     # If it's a file path, read and encode it
     try:
         if isinstance(image_input, (str, bytes)):
@@ -40,18 +40,24 @@ def vision_inference(image_inputs, prompt: str) -> str:
     # Ensure image_inputs is a list
     if isinstance(image_inputs, (str, bytes)):
         image_inputs = [image_inputs]
-    
-    # Create content list with prompt and all images
+
+    # Create content list with prompt
     content = [{"type": "text", "text": prompt}]
-    
+
     # Process each image
     for image_input in image_inputs:
         try:
-            base64_image = encode_image(image_input)
-            content.append({
-                "type": "image_url",
-                "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}
-            })
+            # Convert image_input to string if it's a PathLike object
+            image_path = (
+                str(image_input) if hasattr(image_input, "__fspath__") else image_input
+            )
+            base64_image = encode_image(image_path)
+            content.append(
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},
+                }
+            )
         except Exception as e:
             print(f"Warning: Failed to process image {image_input}: {e}")
             continue
@@ -62,10 +68,7 @@ def vision_inference(image_inputs, prompt: str) -> str:
 
     completion = client.chat.completions.create(
         model=MODEL,
-        messages=[{
-            "role": "user",
-            "content": content
-        }],
+        messages=[{"role": "user", "content": content}],
         temperature=float(temperature),
     )
     return completion.choices[0].message.content
