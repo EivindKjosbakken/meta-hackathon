@@ -6,6 +6,7 @@ import os
 from datetime import datetime
 from fuzzywuzzy import fuzz
 from nebius_vision import vision_inference
+from rag_fhi import FHI_recommendations
 
 # Load secrets
 NEBIUS_API_KEY = st.secrets["NEBIUS_API_KEY"]
@@ -33,10 +34,17 @@ Only return the summary, no other text."""
 
 def get_emergency_log_summary(patient_info):
     """given patient name - personal number, retrieve summary of emergency call log"""
-    # first load the log
-    patient_info = "Kari Nordmann – 250795 67890"
-    log_path = os.path.join("data", "emergency_call_logs", f"{patient_info}.txt")
-    log_text = open(log_path, "r").read()
+    try:
+        # first load the log
+        log_path = os.path.join("data", "emergency_call_logs", f"{patient_info}.txt")
+        log_text = open(log_path, "r").read()
+    except FileNotFoundError:
+        # Return a default message if no emergency log exists
+        return "No previous emergency calls recorded for this patient."
+    except Exception as e:
+        print(f"Error reading emergency log: {e}")
+        return "Unable to retrieve emergency call history."
+
     prompt = f"""This is an emergency call log, showing the patient's emergency call history. Return 3 main points that are most relevant to the patient's health, for emergency responders to know.
 {log_text}
 
@@ -146,6 +154,8 @@ if "additional_info" not in st.session_state:
     st.session_state.additional_info = ""
 if "show_camera" not in st.session_state:
     st.session_state.show_camera = False
+if "rag" not in st.session_state:
+    st.session_state.rag = FHI_recommendations()
 
 # Create three columns for the step indicators
 col1, col2, col3 = st.columns(3)
@@ -276,9 +286,33 @@ else:
     st.title("Analysis & Chat")
     
     with st.spinner("Analyzing all patient data..."):
+        # Get relevant FHI recommendations
+        fhi_recommendations = st.session_state.rag.get_relevant_fhi_recommendations(st.session_state.additional_info)
+        
+        # Create a prompt to summarize the recommendations
+        summary_prompt = f"""
+        Please summarize the following health recommendations in a clear and concise way, 
+        focusing on the most relevant points for this emergency situation. 
+        Format your response as follows:
+
+        SUMMARY:
+        [Your summary of the key points]
+
+        SOURCES:
+        - List each source title and its key recommendation
+        
+        Original recommendations:
+        {fhi_recommendations}
+        """
+        recommendations_summary = inference(summary_prompt)
+        
         analysis_prompt = f"""
         You are an expert medical professional.
         The images are taken on-scene from an ambulance helping the patient with what might be a medical emergency.
+        
+        Consider these relevant health recommendations:
+        {recommendations_summary}
+        
         Analyze the patient's medical journal, current images, and the following additional information:
         
         ADDITIONAL NOTES:
@@ -319,6 +353,13 @@ else:
 
         st.subheader("Analysis Results")
         st.write(analysis)
+        
+        # Display recommendations with expandable details
+        st.subheader("Relevant Health Recommendations")
+        st.info(recommendations_summary)
+        
+        with st.expander("View Original Recommendations"):
+            st.write(fhi_recommendations)
 
     st.markdown("---")
 
