@@ -21,14 +21,29 @@ def extract_text_from_pdf(pdf_file):
     return text
 
 
-def get_pdf_summary(text):
-    prompt = f"""Please provide a comprehensive summary of the following text:
-    
+def get_journal_summary(text):
+    prompt = f"""This is a patient journal, showing the medical history of the patient. Return 3 main points that are most relevant to the patient's health, for emergency responders to know.
 {text}
 
-Please make the summary concise but include all important points."""
-
+Please make the summary concise but include all important points.
+Only return the summary, no other text."""
     return inference(prompt)
+
+
+
+def get_emergency_log_summary(patient_info):
+    """given patient name - personal number, retrieve summary of emergency call log"""
+    # first load the log
+    patient_info = "Kari Nordmann – 250795 67890"
+    log_path = os.path.join("data", "emergency_call_logs", f"{patient_info}.txt")
+    log_text = open(log_path, "r").read()
+    prompt = f"""This is an emergency call log, showing the patient's emergency call history. Return 3 main points that are most relevant to the patient's health, for emergency responders to know.
+{log_text}
+
+Please make the summary concise but include all important points.
+Only return the summary, no other text."""
+    return inference(prompt)
+
 
 
 def get_document_response(text, question, images=None):
@@ -112,10 +127,11 @@ def fuzzy_search(query, choices, threshold=65):
 
 
 # Set up the Streamlit page
-st.set_page_config(page_title="PDF Chat Assistant", layout="wide")
-st.title("Ambulance assistant")
+st.set_page_config(page_title="Ambulance Assistant", layout="wide")
 
 # Initialize session state variables
+if "step" not in st.session_state:
+    st.session_state.step = 1
 if "pdf_text" not in st.session_state:
     st.session_state.pdf_text = None
 if "summary" not in st.session_state:
@@ -124,219 +140,218 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 if "patient_journals" not in st.session_state:
     st.session_state.patient_journals = load_patient_journals()
+if "patient_images" not in st.session_state:
+    st.session_state.patient_images = []
+if "additional_info" not in st.session_state:
+    st.session_state.additional_info = ""
+if "show_camera" not in st.session_state:
+    st.session_state.show_camera = False
 
-# Sidebar content
-with st.sidebar:
-    st.subheader("Patient Search")
+# Create three columns for the step indicators
+col1, col2, col3 = st.columns(3)
+
+# Style for the active and inactive steps
+active_style = "background-color: #0066cc; color: white; padding: 10px; border-radius: 5px; text-align: center;"
+inactive_style = "background-color: #e6e6e6; padding: 10px; border-radius: 5px; text-align: center;"
+
+with col1:
+    st.markdown(f"<div style='{active_style if st.session_state.step == 1 else inactive_style}'>1. Patient Search</div>", unsafe_allow_html=True)
+with col2:
+    st.markdown(f"<div style='{active_style if st.session_state.step == 2 else inactive_style}'>2. Assessment</div>", unsafe_allow_html=True)
+with col3:
+    st.markdown(f"<div style='{active_style if st.session_state.step == 3 else inactive_style}'>3. Analysis & Chat</div>", unsafe_allow_html=True)
+
+st.markdown("---")
+
+# Step 1: Patient Search
+if st.session_state.step == 1:
+    st.title("Patient Search")
     search_query = st.text_input("Search by name or number:").lower()
 
     if search_query:
-        # Fuzzy search through available journals
         journal_keys = list(st.session_state.patient_journals.keys())
         matching_results = fuzzy_search(search_query, journal_keys)
 
         if matching_results:
-            # Limit to top 3 matches
             top_matches = matching_results[:3]
             matching_journals = {
                 key: st.session_state.patient_journals[key]
                 for key, score in top_matches
             }
 
-            # Show match scores in the selection
             selected_journal = st.selectbox(
                 "Select patient journal:",
                 options=[key for key, score in top_matches],
                 format_func=lambda x: f"{x.split(' ')[0].title()} {x.split(' ')[1].title()}",
             )
 
-            if st.button("Load Journal"):
-                # Load the selected PDF
+            if st.button("Load Patient Data"):
                 with open(matching_journals[selected_journal], "rb") as file:
                     st.session_state.pdf_text = extract_text_from_pdf(file)
-                    # Generate summary
-                    with st.spinner("Generating summary..."):
-                        st.session_state.summary = get_pdf_summary(
-                            st.session_state.pdf_text
-                        )
+                    patient_info = os.path.basename(file.name).replace(".pdf", "")
+                    st.session_state.patient_info = get_emergency_log_summary(patient_info)
+                    with st.spinner("Analyzing patient emergency call log and journal..."):
+                        st.session_state.summary = get_journal_summary(st.session_state.pdf_text)
                     st.rerun()
+
         else:
             st.warning("No matching patients found")
 
+    # Show summaries if available
     if st.session_state.pdf_text is not None:
-        if st.button("Clear current journal"):
-            st.session_state.pdf_text = None
-            st.session_state.summary = None
-            st.session_state.chat_history = []
+        st.subheader("📞 Recent Emergency Calls")
+        st.error(
+            """
+            ### 🚨 Emergency Call History
+            {}
+            """.format(st.session_state.patient_info)
+        )
+        
+        st.subheader("📋 Journal Summary")
+        st.info(st.session_state.summary)
+
+        if st.button("Continue to Assessment"):
+            st.session_state.step = 2
             st.rerun()
 
-# Main content
-# Display summary if available
-st.subheader("Document Summary")
-if st.session_state.pdf_text is not None:
-    st.write(st.session_state.summary)
-else:
-    st.write(
-        "No journal loaded. Please search and load a patient journal from the sidebar."
+# Step 2: Assessment
+elif st.session_state.step == 2:
+    st.title("Patient Assessment")
+    
+    # Additional information text area
+    st.subheader("Additional Information")
+    st.session_state.additional_info = st.text_area(
+        "Enter any additional observations or notes:",
+        value=st.session_state.additional_info,
+        height=100
     )
 
-# Add camera capture functionality
-st.subheader("Take Patient Photos")
+    st.subheader("Patient Photos")
+    if st.button("Toggle Camera"):
+        st.session_state.show_camera = not st.session_state.show_camera
+        st.rerun()
 
-# Initialize session state for storing multiple images if not exists
-if "patient_images" not in st.session_state:
-    st.session_state.patient_images = []
-if "show_camera" not in st.session_state:
-    st.session_state.show_camera = False
+    if st.session_state.show_camera:
+        camera_image = st.camera_input("Take a picture")
+        if camera_image:
+            with st.spinner("Processing and saving image..."):
+                os.makedirs("data/patient_images", exist_ok=True)
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                image_path = f"data/patient_images/patient_photo_{timestamp}.jpg"
+                with open(image_path, "wb") as f:
+                    f.write(camera_image.getbuffer())
+                st.session_state.patient_images.append(camera_image)
+                st.session_state.show_camera = False
+                st.rerun()
 
-# Add button to toggle camera
-if st.button("Toggle Camera"):
-    st.session_state.show_camera = not st.session_state.show_camera
-    st.rerun()
+    if st.session_state.patient_images:
+        st.write("Captured patient photos:")
+        cols = st.columns(4)
+        images_to_remove = []
 
-# Show camera only when toggled on
-if st.session_state.show_camera:
-    camera_image = st.camera_input("Take a picture")
+        for idx, image in enumerate(st.session_state.patient_images):
+            col_idx = idx % 4
+            with cols[col_idx]:
+                st.image(image, caption=f"Photo {idx + 1}", width=150)
+                if st.button("❌", key=f"delete_{idx}"):
+                    images_to_remove.append(idx)
 
-    if camera_image:
-        # Show loading spinner while processing
-        with st.spinner("Processing and saving image..."):
-            # Create a directory for storing images if it doesn't exist
-            os.makedirs("data/patient_images", exist_ok=True)
-
-            # Generate timestamp for unique filename
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            image_path = f"data/patient_images/patient_photo_{timestamp}.jpg"
-
-            # Save the captured image
-            with open(image_path, "wb") as f:
-                f.write(camera_image.getbuffer())
-
-            # Add image to session state
-            st.session_state.patient_images.append(camera_image)
-
-            st.success("Image saved successfully!")
-            # Remove automatic camera toggle
-            st.session_state.show_camera = False
+        for idx in sorted(images_to_remove, reverse=True):
+            st.session_state.patient_images.pop(idx)
             st.rerun()
 
-# Display all captured images in a grid layout
-if st.session_state.patient_images:
-    st.write("Captured patient photos:")
+        if st.button("Clear all photos"):
+            st.session_state.patient_images = []
+            st.rerun()
 
-    # Create a grid layout with 4 columns
-    cols = st.columns(4)
-
-    # Create a list to store indices of images to remove
-    images_to_remove = []
-
-    for idx, image in enumerate(st.session_state.patient_images):
-        col_idx = idx % 4  # Determine which column to place the image
-        with cols[col_idx]:
-            # Display image with reduced size
-            st.image(image, caption=f"Photo {idx + 1}", width=150)
-            # Add delete button for each image
-            if st.button("❌", key=f"delete_{idx}"):
-                images_to_remove.append(idx)
-
-    # Remove marked images (in reverse order to maintain correct indices)
-    for idx in sorted(images_to_remove, reverse=True):
-        st.session_state.patient_images.pop(idx)
-        st.rerun()
-
-    # Add button to clear all images
-    if st.button("Clear all photos"):
-        st.session_state.patient_images = []
-        st.rerun()
-
-    # Add analyze button
-    if st.button("Analyze Patient Images and Journal"):
-        if st.session_state.pdf_text is None:
-            st.warning("Please load a patient journal before analyzing.")
+    if st.button("Analyze Case"):
+        if len(st.session_state.patient_images) == 0:
+            st.warning("Please take at least one photo before proceeding.")
         else:
-            with st.spinner("Analyzing patient data..."):
-                analysis_prompt = """
-                You are an expert medical professional.
-                The images are taken on-scene from an ambulance helping the patient with what might be a medical emergency.
-                Analyze the patient's medical journal and current images and provide a structured assessment with clear action points for the ambulance personel.
+            st.session_state.step = 3
+            st.rerun()
 
-                ASSESSMENT:
-                1. Critical Findings:
-                   - Identify immediate life-threatening conditions
-                   - Note vital sign abnormalities
-                   - Document concerning physical findings from images
-                
-                2. Medical History Context:
-                   - List relevant past conditions
-                   - Note current medications
-                   - Highlight allergies and contraindications
-                
-                ACTION POINTS:
-                1. Immediate Actions Required:
-                   - List specific interventions needed
-                   - Prioritize by urgency (immediate/urgent/non-urgent)
-                
-                2. Monitoring Requirements:
-                   - Specify vital signs to track
-                   - Define monitoring intervals
-                
-                3. Treatment Plan:
-                   - Recommend medications with dosages
-                   - Specify care procedures
-                
-                4. Transport/Referral Decisions:
-                   - Determine appropriate destination
-                   - Specify level of care needed
-                
-                5. Additional Resources Needed:
-                   - List required equipment/specialists
-                   - Identify backup support needed
+# Step 3: Analysis & Chat
+else:
+    st.title("Analysis & Chat")
+    
+    with st.spinner("Analyzing all patient data..."):
+        analysis_prompt = f"""
+        You are an expert medical professional.
+        The images are taken on-scene from an ambulance helping the patient with what might be a medical emergency.
+        Analyze the patient's medical journal, current images, and the following additional information:
+        
+        ADDITIONAL NOTES:
+        {st.session_state.additional_info}
+        
+        Provide a structured assessment with clear action points for the ambulance personnel.
 
-                Please provide clear, actionable recommendations based on the findings."""
+        ASSESSMENT:
+        1. Critical Findings:
+           - Identify immediate life-threatening conditions
+           - Note vital sign abnormalities
+           - Document concerning physical findings from images
+        
+        2. Medical History Context:
+           - List relevant past conditions
+           - Note current medications
+           - Highlight allergies and contraindications
+        
+        ACTION POINTS:
+        1. Immediate Actions Required:
+           - List specific interventions needed
+           - Prioritize by urgency (immediate/urgent/non-urgent)
+        
+        2. Monitoring Requirements:
+           - Specify vital signs to track
+           - Define monitoring intervals
+        
+        3. Treatment Plan:
+           - Recommend medications with dosages
+           - Specify care procedures
 
-                analysis = vision_inference(
-                    st.session_state.patient_images,
-                    analysis_prompt,
-                )
+        Please provide clear, actionable recommendations based on the findings."""
 
-                st.subheader("Analysis Results")
-                st.write(analysis)
+        analysis = vision_inference(
+            st.session_state.patient_images,
+            analysis_prompt,
+        )
 
-# Chat interface
-st.subheader("Chat with your patient")
-user_question = st.text_input("Ask a question about your patient:")
+        st.subheader("Analysis Results")
+        st.write(analysis)
 
-if st.button("Send"):
-    if user_question:
-        if st.session_state.pdf_text is None:
-            st.warning("Please load a patient journal first to ask questions.")
-        else:
-            # Add user question to chat history
+    st.markdown("---")
+
+    # Chat interface
+    st.subheader("Chat with Assistant")
+    user_question = st.text_input("Ask a question about the patient:")
+
+    if st.button("Send"):
+        if user_question:
             st.session_state.chat_history.append(("user", user_question))
-
-            # Get response using both text and images
             with st.spinner("Getting response..."):
                 response = get_document_response(
                     st.session_state.pdf_text,
                     user_question,
-                    images=(
-                        st.session_state.patient_images
-                        if st.session_state.patient_images
-                        else None
-                    ),
+                    images=st.session_state.patient_images
                 )
-
-            # Add response to chat history
             st.session_state.chat_history.append(("assistant", response))
 
-# Display chat history
-st.subheader("Chat History")
-if st.session_state.chat_history:
-    for role, message in st.session_state.chat_history:
-        if role == "user":
-            st.write("You: " + message)
-        else:
-            st.write("Assistant: " + message)
-            st.write("---")
-else:
-    st.write("No chat history yet.")
+    if st.session_state.chat_history:
+        for role, message in st.session_state.chat_history:
+            if role == "user":
+                st.write("You: " + message)
+            else:
+                st.write("Assistant: " + message)
+                st.write("---")
+
+# Add a "Start Over" button that's always visible at the bottom
+if st.button("Start Over"):
+    st.session_state.step = 1
+    st.session_state.pdf_text = None
+    st.session_state.summary = None
+    st.session_state.chat_history = []
+    st.session_state.patient_images = []
+    st.session_state.additional_info = ""
+    st.session_state.show_camera = False
+    st.rerun()
