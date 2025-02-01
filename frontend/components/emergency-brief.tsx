@@ -15,12 +15,71 @@ interface EmergencyBriefProps {
 }
 
 export function EmergencyBrief({ patient, onContinue }: EmergencyBriefProps) {
-  // Get the most recent emergency log
-  const latestEmergency = patient.emergencyLogs[0]
+  // Get the most recent emergency log with null check
+  const latestEmergency = patient.emergencyLogs?.[0]
 
   // Get recent journal entries (last 3)
-  const recentEntries = patient.journalEntries.slice(0, 3)
+  const recentEntries = patient.journalEntries?.slice(0, 3) || []
 
+  // If there's no emergency log, show a different message
+  if (!latestEmergency) {
+    return (
+      <div className="space-y-4">
+        <Card className="border-red-200 bg-red-50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-red-700 flex items-center gap-2">
+              <Phone className="h-4 w-4" />
+              No Emergency Call Records
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-red-600">No emergency calls have been recorded for this patient.</p>
+          </CardContent>
+        </Card>
+
+        {/* Recent Medical History */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Recent Medical History
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] pr-4">
+              <div className="space-y-4">
+                {recentEntries.map((entry) => (
+                  <div key={entry.id} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">{format(new Date(entry.date), "PP")}</span>
+                      <Badge variant="outline">{entry.type}</Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{entry.description}</p>
+                    {entry.symptoms && (
+                      <div className="flex flex-wrap gap-1">
+                        {entry.symptoms.map((symptom) => (
+                          <Badge key={symptom} variant="secondary">
+                            {symptom}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </CardContent>
+          <CardFooter>
+            <Button onClick={onContinue} className="w-full bg-ai-500 hover:bg-ai-600">
+              Continue to Assessment
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    )
+  }
+
+  // Original return with emergency log data
   return (
     <div className="space-y-4">
       {/* Emergency Call Summary */}
