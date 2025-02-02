@@ -40,18 +40,18 @@ def encode_image(image_input):
         raise ValueError(f"Failed to process image input: {e}")
 
 
-def vision_inference(image_inputs, prompt: str) -> str:
-    # Ensure image_inputs is a list
-    if not isinstance(image_inputs, list):
-        image_inputs = [image_inputs]
+def vision_inference(image_paths, prompt, max_tokens=500):
+    # Ensure image_paths is a list
+    if not isinstance(image_paths, list):
+        image_paths = [image_paths]
 
     # Create content list with prompt
     content = [{"type": "text", "text": prompt}]
 
     # Process each image
-    for image_input in image_inputs:
+    for image_path in image_paths:
         try:
-            base64_image = encode_image(image_input)
+            base64_image = encode_image(image_path)
             content.append(
                 {
                     "type": "image_url",
@@ -59,7 +59,7 @@ def vision_inference(image_inputs, prompt: str) -> str:
                 }
             )
         except Exception as e:
-            print(f"Warning: Failed to process image {image_input}: {e}")
+            print(f"Warning: Failed to process image {image_path}: {e}")
             continue
 
     # Only proceed if we have at least one successfully processed image
@@ -71,6 +71,7 @@ def vision_inference(image_inputs, prompt: str) -> str:
             model=MODEL,
             messages=[{"role": "user", "content": content}],
             temperature=float(temperature),
+            max_tokens=max_tokens
         )
         return completion.choices[0].message.content
     except Exception as e:

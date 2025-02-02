@@ -9,7 +9,7 @@ from datetime import datetime
 from fuzzywuzzy import fuzz
 from nebius_vision import vision_inference
 from rag_fhi import FHI_recommendations
-from tts import text_to_speech
+from tts import text_to_speech, generate_audio
 
 # ------------------------------
 # 1. PAGE CONFIG & CUSTOM STYLES
@@ -294,14 +294,17 @@ if st.session_state.step == 1:
             st.subheader("📋 Journal Summary")
             st.info(st.session_state.summary)
 
-            # Add audio version button
-            if st.button("🔊 Listen to Audio Version"):
-                audio_text = f"""
-                Emergency Call History: {st.session_state.patient_info}
-                
-                Journal Summary: {st.session_state.summary}
-                """
-                text_to_speech(audio_text)
+            # Generate audio right after showing the information
+            audio_text = f"""
+            Emergency Call History: {st.session_state.patient_info}
+            
+            Journal Summary: {st.session_state.summary}
+            """
+            if 'audio_bytes' not in st.session_state:
+                st.session_state.audio_bytes = generate_audio(audio_text)
+            
+            # Display audio player directly
+            st.audio(st.session_state.audio_bytes, format='audio/mp3')
 
             if st.button("Continue to Assessment"):
                 st.session_state.step = 2
@@ -337,72 +340,36 @@ elif st.session_state.step == 2:
                 st.session_state.show_camera = False
                 st.rerun()
 
-        st.markdown("</div>", unsafe_allow_html=True)
+    # Display captured images
+    if st.session_state.patient_images:
+        st.write("Captured patient photos:")
+        # Display in columns or stacked
+        cols = st.columns(2)
+        images_to_remove = []
 
-# ------------------------------
-# STEP 2: ASSESSMENT
-# ------------------------------
-elif st.session_state.step == 2:
-    with st.container():
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.title("Patient Assessment")
+        for idx, image in enumerate(st.session_state.patient_images):
+            col_idx = idx % 2
+            with cols[col_idx]:
+                st.image(image, caption=f"Photo {idx + 1}", width=150)
+                if st.button(f"❌ Remove Photo {idx + 1}", key=f"delete_{idx}"):
+                    images_to_remove.append(idx)
 
-        # Additional information text area
-        st.subheader("Additional Information")
-        st.session_state.additional_info = st.text_area(
-            "Enter any additional observations or notes:",
-            value=st.session_state.additional_info,
-            height=100
-        )
-
-        st.subheader("Patient Photos")
-        if st.button("Toggle Camera"):
-            st.session_state.show_camera = not st.session_state.show_camera
+        for idx in sorted(images_to_remove, reverse=True):
+            st.session_state.patient_images.pop(idx)
             st.rerun()
 
-        if st.session_state.show_camera:
-            camera_image = st.camera_input("Take a picture")
-            if camera_image:
-                with st.spinner("Processing and saving image..."):
-                    os.makedirs("data/patient_images", exist_ok=True)
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    image_path = f"data/patient_images/patient_photo_{timestamp}.jpg"
-                    with open(image_path, "wb") as f:
-                        f.write(camera_image.getbuffer())
-                    st.session_state.patient_images.append(camera_image)
-                    st.session_state.show_camera = False
-                    st.rerun()
+        if st.button("Clear all photos"):
+            st.session_state.patient_images = []
+            st.rerun()
 
-        # Display captured images
-        if st.session_state.patient_images:
-            st.write("Captured patient photos:")
-            # Display in columns or stacked
-            cols = st.columns(2)
-            images_to_remove = []
-
-            for idx, image in enumerate(st.session_state.patient_images):
-                col_idx = idx % 2
-                with cols[col_idx]:
-                    st.image(image, caption=f"Photo {idx + 1}", width=150)
-                    if st.button(f"❌ Remove Photo {idx + 1}", key=f"delete_{idx}"):
-                        images_to_remove.append(idx)
-
-            for idx in sorted(images_to_remove, reverse=True):
-                st.session_state.patient_images.pop(idx)
-                st.rerun()
-
-            if st.button("Clear all photos"):
-                st.session_state.patient_images = []
-                st.rerun()
-
-        if st.button("Analyze Case"):
-            if len(st.session_state.patient_images) == 0:
-                st.warning("Please take at least one photo before proceeding.")
-            else:
-                st.session_state.step = 3
-                st.rerun()
-
-        st.markdown("</div>", unsafe_allow_html=True)
+    if st.button("Analyze Case"):
+        if len(st.session_state.patient_images) == 0:
+            st.warning("Please take at least one photo before proceeding.")
+        else:
+            # Store the current step in session state before proceeding
+            st.session_state.previous_step = st.session_state.step
+            st.session_state.step = 3
+            st.rerun()
 
 # ------------------------------
 # STEP 3: ANALYSIS & CHAT
@@ -454,40 +421,61 @@ else:
 
             Provide a structured assessment with clear action points for the ambulance personnel.
 
-            1. Key insights (headline 1, two - three bullet points)
-            2. Action points (headline 2, two - three bullet points)
+            1. Key insights (headline 1)
+            2. Action points (headline 2)
 
             Respond in the following format:
             ## 🔑 Key insights
             - Bullet point 1
             - Bullet point 2
+            - ...
             ## ⚡ Action points
             - Bullet point 1
             - Bullet point 2
-
-            Make the analysis concise and to the point.
+            - ...
+            Reply with the headlines and bullet points only, no other text.
             """
 
             # Use vision inference for final analysis
             analysis = vision_inference(
                 st.session_state.patient_images,
                 analysis_prompt,
+                max_tokens=500
             )
 
-            # Display analysis
-            st.write(analysis)
+            # After displaying the analysis, store it in session state to prevent regeneration:
+            if 'current_analysis' not in st.session_state:
+                st.session_state.current_analysis = analysis
 
-            # Add audio version for analysis
-            if st.button("🔊 Listen to Analysis"):
-                text_to_speech(analysis)
+            st.write(st.session_state.current_analysis)
+
+            # Add audio player with button
+            col1, col2 = st.columns([1, 4])
+            with col1:
+                if st.button("🔊 Listen to Analysis"):
+                    analysis_audio = generate_audio(st.session_state.current_analysis)
+                    st.session_state.analysis_audio = analysis_audio
+                    st.session_state.play_analysis = True
+                    st.rerun()
+            with col2:
+                if 'play_analysis' in st.session_state and st.session_state.play_analysis:
+                    st.audio(st.session_state.analysis_audio, format='audio/mp3')
+                    st.session_state.play_analysis = False
 
             # Display recommendations summary
             st.subheader("Relevant Health Recommendations")
             st.info(recommendations_summary)
 
-            # Add audio version for recommendations
-            if st.button("🔊 Listen to Recommendations"):
-                text_to_speech(recommendations_summary)
+            # Add audio player with button
+            col1, col2 = st.columns([1, 4])
+            with col1:
+                if st.button("🔊 Listen to Recommendations"):
+                    recommendations_audio = generate_audio(recommendations_summary)
+                    st.session_state.play_recommendations = True
+            with col2:
+                if 'play_recommendations' in st.session_state and st.session_state.play_recommendations:
+                    st.audio(recommendations_audio, format='audio/mp3')
+                    st.session_state.play_recommendations = False
 
             with st.expander("View Original Recommendations"):
                 st.write(fhi_recommendations)
