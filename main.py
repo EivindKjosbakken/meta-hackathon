@@ -191,6 +191,7 @@ def render_step_indicator(current_step):
         ("Step 1: Patient Search", 1),
         ("Step 2: Assessment", 2),
         ("Step 3: Analysis & Chat", 3),
+        ("Step 4: Hospital Transfer", 4),
     ]
 
     for label, number in steps:
@@ -216,6 +217,18 @@ def chat_bubble(message, sender="user"):
         {message}
     </div>
     """
+
+# Function to create patient summary
+def create_patient_summary():
+    summary = f"""
+    Patient Information:
+    - Name: {st.session_state.patient_info.split('–')[0].strip() if st.session_state.patient_info else 'N/A'}
+    - Emergency Call Summary: {st.session_state.patient_info}
+    - Journal Summary: {st.session_state.summary}
+    - Additional Notes: {st.session_state.additional_info}
+    - Analysis: {st.session_state.current_analysis if 'current_analysis' in st.session_state else 'N/A'}
+    """
+    return summary
 
 # ------------------------------
 # 3. SESSION STATE INIT
@@ -374,7 +387,7 @@ elif st.session_state.step == 2:
 # ------------------------------
 # STEP 3: ANALYSIS & CHAT
 # ------------------------------
-else:
+elif st.session_state.step == 3:
     with st.spinner("Analyzing all patient data..."):
         # Get relevant FHI recommendations but limit the length
         fhi_recommendations = st.session_state.rag.get_relevant_fhi_recommendations(
@@ -444,6 +457,42 @@ else:
     if st.session_state.chat_history:
         for role, message in st.session_state.chat_history:
             st.markdown(chat_bubble(message, sender=role), unsafe_allow_html=True)
+
+    if st.button("Continue to Hospital Transfer"):
+        st.session_state.step = 4
+        st.rerun()
+
+# ------------------------------
+# STEP 4: HOSPITAL TRANSFER
+# ------------------------------
+elif st.session_state.step == 4:
+    st.title("Hospital Transfer")
+    
+    # Display patient summary
+    st.subheader("Patient Summary")
+    st.info(create_patient_summary())
+
+    if "transfer_completed" not in st.session_state:
+        st.session_state.transfer_completed = False
+
+    if not st.session_state.transfer_completed:
+        if st.button("Send to Hospital"):
+            st.session_state.transfer_completed = True
+            st.success("Patient information transferred successfully to hospital!")
+            st.rerun()
+    else:
+        st.success("Patient information transferred successfully to hospital!")
+        if st.button("Start New Case"):
+            st.session_state.step = 1
+            st.session_state.pdf_text = None
+            st.session_state.summary = None
+            st.session_state.chat_history = []
+            st.session_state.patient_images = []
+            st.session_state.additional_info = ""
+            st.session_state.show_camera = False
+            st.session_state.patient_info = ""
+            st.session_state.transfer_completed = False
+            st.rerun()
 
 # ------------------------------
 # OPTIONAL: START OVER
