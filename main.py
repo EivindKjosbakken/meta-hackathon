@@ -80,7 +80,7 @@ Please make the summary concise but include all important points.
 Only return the summary, no other text."""
     return inference(prompt)
 
-def get_emergency_log_summary(patient_info):
+def get_patient_log_summary(patient_info):
     """Given patient name - personal number, retrieve summary of emergency call log."""
     try:
         log_path = os.path.join("data", "emergency_call_logs", f"{patient_info}.txt")
@@ -293,7 +293,7 @@ if st.session_state.step == 1:
                     with open(matching_journals[selected_journal], "rb") as file:
                         st.session_state.pdf_text = extract_text_from_pdf(file)
                         patient_info = os.path.basename(file.name).replace(".pdf", "")
-                        st.session_state.patient_info = get_emergency_log_summary(patient_info)
+                        st.session_state.patient_info = get_patient_log_summary(patient_info)
                         with st.spinner("Analyzing patient emergency call log and journal..."):
                             st.session_state.summary = get_journal_summary(st.session_state.pdf_text)
                         st.rerun()
@@ -441,7 +441,7 @@ elif st.session_state.step == 3:
     st.subheader("Chat with Assistant")
     user_question = st.text_input("Ask a question about the patient:")
 
-    if st.button("Send"):
+    if st.button("Send message"):
         if user_question:
             st.session_state.chat_history.append(("user", user_question))
             with st.spinner("Getting response..."):
