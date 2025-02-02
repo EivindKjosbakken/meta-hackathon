@@ -308,17 +308,17 @@ if st.session_state.step == 1:
             st.subheader("📋 Journal Summary")
             st.info(st.session_state.summary)
 
-            # Generate audio right after showing the information
-            audio_text = f"""
-            Emergency Call History: {st.session_state.patient_info}
+            # # Generate audio right after showing the information
+            # audio_text = f"""
+            # Emergency Call History: {st.session_state.patient_info}
             
-            Journal Summary: {st.session_state.summary}
-            """
-            if 'audio_bytes' not in st.session_state:
-                st.session_state.audio_bytes = generate_audio(audio_text)
+            # Journal Summary: {st.session_state.summary}
+            # """
+            # if 'audio_bytes' not in st.session_state:
+            #     st.session_state.audio_bytes = generate_audio(audio_text)
             
-            # Display audio player directly
-            st.audio(st.session_state.audio_bytes, format='audio/mpeg')
+            # # Display audio player directly
+            # st.audio(st.session_state.audio_bytes, format='audio/mpeg')
 
             if st.button("Continue to Assessment"):
                 st.session_state.step = 2
