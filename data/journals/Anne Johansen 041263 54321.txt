@@ -1,0 +1,81 @@
+Patient Medical Journal
+**Pasientjournal PT16991**
+**Pasientdemografi og initial vurdering:**
+- **Alder og kjønn:** 35 år, kvinne
+- **Yrke og livsstilsfaktorer:** Kontorarbeider, røyker ikke, moderat fysisk aktivitet
+- **Familiær sykdomshistorie:** Mor med hypertensjon, far med diabetes type 2
+- **Sosiale forhold:** Gift, to barn, god sosial støtte
+**Første konsultasjon: 2015-02-04**
+- **Syst.:** Angstlidelse, søvnløshet
+- **Obj.:** Blodtrykk 140/90 mmHg, puls 80/min, respirasjon 16/min
+- **Vurd.:** Angstlidelse, mulig hypertensjon
+- **Plan:** Metformin 500 mg 2x/dag, Lisinopril 10 mg 1x/dag, Ventoline 2,5 mg 2x/dag, Fysioterapi
+2x/uke, SSRI-preparater (sertralin 50 mg 1x/dag), kostholdsveiledning
+**Kronologisk sykehistorie:**
+- **2015-06-01:** Regelmessig kontroll, blodtrykk 130/85 mmHg, puls 75/min. Pasienten rapporterer
+forbedret søvnkvalitet og redusert angstnivå.
+- **2016-01-01:** Nytt år, nye mål. Pasienten ønsker å øke fysisk aktivitet og slutte å spise junk
+food.
+- **2016-06-01:** Regelmessig kontroll, blodtrykk 125/80 mmHg, puls 70/min. Pasienten har økt
+fysisk aktivitet og rapporterer bedret generelt helsetilstand.
+- **2017-01-01:** Pasienten utvikler nye symptomer: smerter i ryggen og leddene. Henvisning til
+fysioterapi og smertestillende medikamenter (NSAIDs).
+- **2017-06-01:** Regelmessig kontroll, blodtrykk 120/75 mmHg, puls 65/min. Pasienten rapporterer
+bedret smertekontroll og økt mobilitet.
+- **2018-01-01:** Pasienten utvikler nye symptomer: kvalme og oppkast. Henvisning til
+gastroenterolog og protonpumpehemmere.
+- **2018-06-01:** Regelmessig kontroll, blodtrykk 115/70 mmHg, puls 60/min. Pasienten rapporterer
+bedret magefunksjon og redusert kvalme.
+- **2019-01-01:** Pasienten ønsker å prøve alternative behandlingsformer: akupunktur og kognitiv
+atferdsterapi.
+- **2019-06-01:** Regelmessig kontroll, blodtrykk 110/65 mmHg, puls 55/min. Pasienten rapporterer
+bedret angstkontroll og økt selvkontroll.
+- **2020-01-01:** Pasienten utvikler nye symptomer: hoste og pustebesvær. Henvisning til
+lungespesialist og Ventoline 2,5 mg 2x/dag.
+- **2020-06-01:** Regelmessig kontroll, blodtrykk 105/60 mmHg, puls 50/min. Pasienten rapporterer
+bedret pustefunksjon og redusert hoste.
+- **2021-01-01:** Pasienten ønsker å øke fysisk aktivitet og slutte å spise junk food.
+- **2021-06-01:** Regelmessig kontroll, blodtrykk 100/55 mmHg, puls 45/min. Pasienten har økt
+fysisk aktivitet og rapporterer bedret generelt helsetilstand.
+- **2022-01-01:** Pasienten utvikler nye symptomer: smerter i hodet og nakken. Henvisning til
+fysioterapi og smertestillende medikamenter (NSAIDs).
+- **2022-06-01:** Regelmessig kontroll, blodtrykk 95/50 mmHg, puls 40/min. Pasienten rapporterer
+bedret smertekontroll og økt mobilitet.
+- **2023-01-01:** Pasienten ønsker å prøve nye behandlingsformer: kognitiv atferdsterapi og
+kostholdsveiledning.
+- **2023-06-01:** Regelmessig kontroll, blodtrykk 90/45 mmHg, puls 35/min. Pasienten rapporterer
+bedret angstkontroll og økt selvkontroll.
+- **2024-01-01:** Pasienten utvikler nye symptomer: kvalme og oppkast. Henvisning til
+gastroenterolog og protonpumpehemmere.
+- **2024-06-01:** Regelmessig kontroll, blodtrykk 85/40 mmHg, puls 30/min. Pasienten rapporterer
+bedret magefunksjon og redusert kvalme.
+**Behandlingsrespons:**
+- **Effekt av medikamenter:** Metformin, Lisinopril, Ventoline, SSRI-preparater, NSAIDs,
+protonpumpehemmere har alle hatt en positiv effekt på pasientens symptomer.
+- **Bivirkninger og toleranse:** Pasienten har rapportert noen bivirkninger, men de har vært tolerable
+og har ikke ført til noen alvorlige komplikasjoner.
+- **Compliance og etterlevelse:** Pasienten har vært meget compliant og har ført en god
+etterlevelse av behandlingsplanen.
+- **Pasientens subjektive opplevelse:** Pasienten rapporterer en betydelig forbedring av symptomer
+og en økt livskvalitet.
+**Komplikasjoner og bivirkninger:**
+- **Detaljert beskrivelse av eventuelle komplikasjoner:** Pasienten har utviklet noen komplikasjoner,
+men de har alle vært håndtert effektivt av behandlingsplanen.
+- **Håndtering av bivirkninger:** Pasienten har rapportert noen bivirkninger, men de har alle vært
+håndtert effektivt av behandlingsplanen.
+- **Forebyggende tiltak:** Pasienten har ført en god etterlevelse av forebyggende tiltak, inkludert
+kostholdsveiledning og fysisk aktivitet.
+**Nåværende status:**
+- **Aktuell medikamentliste:** Metformin 500 mg 2x/dag, Lisinopril 10 mg 1x/dag, Ventoline 2,5 mg
+2x/dag, SSRI-preparater (sertralin 50 mg 1x/dag), NSAIDs, protonpumpehemmere
+- **Funksjonsnivå:** Pasienten har en god funksjonsnivå og kan utføre alle daglige aktiviteter uten
+problemer.
+- **Livskvalitet:** Pasienten rapporterer en betydelig forbedring av livskvalitet og en økt selvkontroll.
+- **Arbeidsevne:** Pasienten er i stand til å arbeide fullt ut og har ikke rapportert noen problemer
+med arbeidsevnen.
+**Konklusjon:**
+Pasienten PT16991 har hatt en kompleks sykehistorie med flere diagnoser og behandlingsformer.
+Behandlingsplanen har vært effektiv i å kontrollere symptomer og forbedre livskvalitet. Pasienten har
+vært meget compliant og har ført en god etterlevelse av behandlingsplanen. Det er viktig å fortsette
+å følge opp pasienten og justere behandlingsplanen etter behov for å sikre en optimal behandling og
+en god livskvalitet.

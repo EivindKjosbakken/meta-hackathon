@@ -1,0 +1,47 @@
+Medisinsk Journal
+Navn: Ole Hansen
+Fødselsdato: 1980-05-15
+Pasient-ID: 19800515-1234
+Kjønn: Mann
+Blodtype: A+
+Besøkshistorikk
+Besøksdato: 2015-04-28
+
+Pemphigus vulgaris
+Pasient innlegges på grunn av smertefulle erosjoner og bullae på hud og slimhinner. Pasient opplever akutt kløe. Pasienten har i de siste [uker/måneder] merket tiltagende skjør hud med sårdannelse, spesielt i munnhulen, noe som har ført til smerter ved spising og snakking. Det rapporteres om tidligere episoder med lignende utslett, men uten alvorlig forverring. Ingen kjent allergi eller tidligere hudsykdommer.
+- Blodtrykk: 130/68
+utslett, men uten alvorlig forverring. Ingen kjent allergi eller
+tidligere hudsykdommer.
+- Hjertefrekvens: 79 slag/min
+- Temperatur: 36.4°C
+Notater: Pasienten presenterte med bronkitt. Kostholdsendringer ble iverksatt.
+Besøksdato: 2015-07-06
+Tilstand: Sesongallergier
+Behandling: Forskrevet medisiner
+Vitale tegn:
+- Blodtrykk: 114/61
+- Hjertefrekvens: 68 slag/min
+- Temperatur: 37.2°C
+Notater: Pasienten presenterte med sesongallergier. Forskrevet medisiner ble iverksatt.
+Besøksdato: 2015-08-28
+Tilstand: Migrene
+Behandling: Anbefalt livsstilsendringer
+Vitale tegn:
+- Blodtrykk: 118/72
+- Hjertefrekvens: 87 slag/min
+- Temperatur: 36.8°C
+Notater: Pasienten presenterte med migrene. Anbefalt livsstilsendringer ble iverksatt.
+Besøksdato: 2015-10-23
+Tilstand: Angstlidelse
+Behandling: Bildediagnostikk
+Vitale tegn:
+- Blodtrykk: 129/61
+- Hjertefrekvens: 75 slag/min
+- Temperatur: 36.7°C
+Notater: Pasienten presenterte med angstlidelse. Bildediagnostikk ble iverksatt.
+Besøksdato: 2016-01-28
+Tilstand: Artritt
+Behandling: Kostholdsendringer
+Vitale tegn:
+- Blodtrykk: 111/87
+- Hjertefrekvens: 95 slag/min

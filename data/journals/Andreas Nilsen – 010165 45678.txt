@@ -1,0 +1,72 @@
+Patient Medical Journal
+**Pasientjournal PT70604**
+**Pasientdemografi og initial vurdering:**
+- **Alder og kjønn:** 42 år, kvinne
+- **Yrke og livsstilsfaktorer:** Kontorarbeider, røyker ikke, moderat fysisk aktivitet
+- **Familiær sykdomshistorie:** Mor med hypertensjon, far med diabetes type 2
+- **Sosiale forhold:** Gift, to barn, god sosial støtte
+**Kronologisk sykehistorie:**
+1. **2015-02-04 (Første konsultasjon):**
+- **Syst.:** Klager over brystsmerter, refluks, angst og kroniske ryggsmerter.
+- **Obj.:** BP 140/90 mmHg, puls 80 bpm, respirasjon 16 bpm. Objektive funn inkluderer
+tenderness over gastroesofageal overgang og lumbal region.
+- **Vurd.:** Refluksøsofagitt, angstlidelse, kroniske ryggsmerter.
+- **Plan:** Metformin 500 mg daglig, Lisinopril 10 mg daglig, Ventoline 2,5 mg 2 ganger daglig,
+fysioterapi, SSRI-preparater (sertralin 50 mg daglig), kostholdsveiledning.
+2. **2016-05-10 (Regelmessig kontroll):**
+- **Syst.:** Rapporterer forbedring av refluksymptomer, men fortsatt angst og ryggsmerter.
+- **Obj.:** BP 130/85 mmHg, puls 75 bpm. Laboratorieresultater: HbA1c 6,5%, kreatinin 0,9
+mg/dL.
+- **Vurd.:** God respons på Metformin, fortsatt behov for å håndtere angst og ryggsmerter.
+- **Plan:** Fortsett med eksisterende medikamenter, øke fysioterapi til 3 ganger ukentlig,
+introdusere kognitiv atferdsterapi.
+3. **2017-02-20 (Akuttinnleggelse):**
+- **Syst.:** Pløtslig økning i ryggsmerter og feber.
+- **Obj.:** BP 150/100 mmHg, puls 100 bpm, feber 38,5°C. Diagnose: Akutt lumbal spondylosis.
+- **Vurd.:** Akutt eksaserasjon av kroniske ryggsmerter.
+- **Plan:** Innleggelse for smertebehandling og fysikalsk rehabilitering. Tilføye NSAIDs (ibuprofen
+400 mg 3 ganger daglig) og smertestillende (tramadol 50 mg 3 ganger daglig).
+4. **2018-08-15 (Regelmessig kontroll):**
+- **Syst.:** Rapporterer bedring av ryggsmerter, men økning i angstnivå.
+- **Obj.:** BP 125/80 mmHg, puls 70 bpm. Laboratorieresultater: HbA1c 6,2%, kreatinin 0,8
+mg/dL.
+- **Vurd.:** God kontroll av diabetes og hypertensjon, men økt angst.
+- **Plan:** Justere SSRI-dose (sertralin 75 mg daglig), introdusere akupunktur for
+smertehåndtering og angstreduksjon.
+5. **2020-03-10 (COVID-19-pandemi):**
+- **Syst.:** Rapporterer økt angst og isolasjon på grunn av pandemien.
+- **Obj.:** Telemedisinsk konsultasjon. BP 130/85 mmHg, puls 80 bpm (selvrapportert).
+- **Vurd.:** Pandemirelatert angst og isolasjon.
+- **Plan:** Øke frekvensen av kognitiv atferdsterapi, introdusere søvnhygiene og
+stressreduksjonsteknikker.
+6. **2022-01-05 (Regelmessig kontroll):**
+- **Syst.:** Rapporterer generell bedring, men noen gjenværende ryggsmerter.
+- **Obj.:** BP 120/80 mmHg, puls 65 bpm. Laboratorieresultater: HbA1c 6,0%, kreatinin 0,7
+mg/dL.
+- **Vurd.:** God langtidskontroll av kroniske tilstander.
+- **Plan:** Fortsett med eksisterende behandlingsplan, reducere NSAIDs til 2 ganger ukentlig.
+**Behandlingsrespons:**
+- **Effekt av medikamenter:** God respons på Metformin og Lisinopril. Variabel respons på
+SSRI-preparater og NSAIDs.
+- **Bivirkninger og toleranse:** Bivirkninger inkluderer gastrointestinal irritasjon fra NSAIDs og initialt
+økt angst fra SSRI.
+- **Compliance og etterlevelse:** God compliance, men noen utfordringer med å holde kostholds- og
+fysisk aktivitetsmål.
+- **Pasientens subjektive opplevelse:** Rapporterer generell bedring i livskvalitet, men noen
+gjenværende utfordringer med angst og ryggsmerter.
+**Komplikasjoner og bivirkninger:**
+- **Detaljert beskrivelse:** Akutt lumbal spondylosis i 2017, som resulterte i innleggelse og justering
+av smertehåndtering.
+- **Håndtering av bivirkninger:** Justering av medikamentdoser og introduksjon av alternative
+behandlingsformer som akupunktur.
+- **Forebyggende tiltak:** Fokus på kostholdsveiledning, fysisk aktivitet og
+stressreduksjonsteknikker for å forebygge fremtidige komplikasjoner.
+**Nåværende status:**
+- **Aktuell medikamentliste:** Metformin 500 mg daglig, Lisinopril 10 mg daglig, sertralin 75 mg
+daglig, ibuprofen 400 mg 2 ganger ukentlig, protonpumpehemmere 20 mg daglig.
+- **Funksjonsnivå:** God fysisk funksjon, men noen begrensninger på grunn av ryggsmerter.
+- **Livskvalitet:** Forbedret livskvalitet, men fortsatt noen utfordringer med angst og ryggsmerter.
+- **Arbeidsevne:** Fullt arbeidsdyktig, men med noen justeringer for å håndtere kroniske tilstander.
+**Oppfølging:**
+- **Neste konsultasjon:** Planlagt til 6 måneder fra nåværende dato for å evaluere
+behandlingsrespons og justere behandlingsplan videre.

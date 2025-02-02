@@ -1,0 +1,40 @@
+Patient Medical Journal
+**Pasientjournal PT10426**
+**Pasientdemografi og initial vurdering:**
+- **Alder og kjønn:** 35 år, kvinne
+- **Yrke og livsstilsfaktorer:** Kontorarbeider, røyker ikke, moderat fysisk aktivitet
+- **Familiær sykdomshistorie:** Mor med diabetes type 2, far med høyt blodtrykk
+- **Sosiale forhold:** Gift, to barn, god sosial støtte
+**Kronologisk sykehistorie:**
+1. **2015-02-04:** Første konsultasjon. Diagnosen er kronisk utmattelsessyndrom. Behandling med
+Metformin 500 mg 2 ganger daglig og Lisinopril 10 mg daglig innledes. Fysioterapi og
+kostholdsveiledning anbefales.
+- **Syst.:** Pasienten rapporterer kronisk trøtthet, muskelsmerter og søvnforstyrrelser.
+- **Obj.:** Blodtrykk 140/90 mmHg, puls 80 bpm, temperatur 36,5°C. Laboratorieundersøkelser:
+Blodglukose 6,2 mmol/L, HbA1c 42 mmol/mol.
+- **Vurd.:** Kronisk utmattelsessyndrom med mulig metabolsk komponent.
+- **Plan:** Oppfølging om 3 måneder, justering av medikamentene basert på respons.
+2. **2016-05-10:** Pasienten rapporterer forbedring i trøtthet, men fortsatt søvnproblemer.
+SSRI-preparat (Fluoksetin 20 mg daglig) innføres for å håndtere depressive symptomer.
+- **Syst.:** Forbedret trøtthetsnivå, men fortsatt søvnvansker.
+- **Obj.:** Blodtrykk 130/85 mmHg. Laboratorieundersøkelser: Blodglukose 5,9 mmol/L, HbA1c 39
+mmol/mol.
+- **Vurd.:** God respons på Metformin og Lisinopril. Depressive symptomer behandles med SSRI.
+- **Plan:** Fortsett med nåværende behandling, oppfølging om 6 måneder.
+3. **2018-01-15:** Pasienten utvikler akutt bronkitt. Behandling med Ventoline og antibiotika
+innledes.
+- **Syst.:** Hoste, dyspné.
+- **Obj.:** Auskultasjon av lungene avdekker bilaterale wheezes. Røntgen av thorax viser
+bilaterale infiltrater.
+- **Vurd.:** Akutt bronkitt.
+- **Plan:** Antibiotikabehandling og bronkodilatatorer. Oppfølging om 2 uker.
+4. **2020-03-20:** Pasienten rapporterer økt smerte og stivhet i leddene. NSAIDs (Ibuprofen 400
+mg 3 ganger daglig) innføres.
+- **Syst.:** Økt smerte og stivhet i leddene.
+- **Obj.:** Objektivt funn av artritt i håndledd og knær.
+- **Vurd.:** Revmatoid artritt.
+- **Plan:** Innføring av DMARDs (Metotrexat) og fysioterapi. Oppfølging om 3 måneder.
+5. **2022-09-01:** Pasienten utvikler gastrointestinale bivirkninger av Metotrexat.
+Protonpumpehemmere (Omeprazol 20 mg daglig) innføres.
+- **Syst.:** Dyspepsi, abdominal smerte.
+- **Obj.:** Endoskopi viser gastritt.
