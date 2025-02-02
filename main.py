@@ -317,7 +317,7 @@ if st.session_state.step == 1:
                 st.session_state.audio_bytes = generate_audio(audio_text)
             
             # Display audio player directly
-            st.audio(st.session_state.audio_bytes, format='audio/mp3')
+            st.audio(st.session_state.audio_bytes, format='audio/mpeg')
 
             if st.button("Continue to Assessment"):
                 st.session_state.step = 2
