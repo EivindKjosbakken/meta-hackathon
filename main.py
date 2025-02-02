@@ -395,7 +395,7 @@ elif st.session_state.step == 3:
             # Get relevant FHI recommendations but limit the length
             st.session_state.fhi_recommendations = st.session_state.rag.get_relevant_fhi_recommendations(
                 st.session_state.additional_info,
-                max_recommendations=3
+                max_recommendations=2
             )
 
             # Truncate the medical history and emergency log if too long
@@ -406,14 +406,14 @@ elif st.session_state.step == 3:
             analysis_prompt = f"""
             Given these patient details:
             NOTES: {st.session_state.additional_info}
-            MEDICALHISTORY: {truncated_medical_history}
+            MEDICAL HISTORY: {truncated_medical_history}
             EMERGENCY LOG: {st.session_state.patient_info}
 
             Analyze these patient details for emergency response.
-            Notify any connections or similarities between the medical history of the patient and the emergency call log/notes, for example a connection between the patients medical history and the emergency call log/notes.
+            Inform the medical team about connections between the patients medical history and the emergency call log/notes.
             Only include the most relevant information critical for the emergency response.
 
-            Respond with in the following format, with the action points for the ambulance crew:
+            Respond with in the following format, with the action points directed at the ambulance crew:
             ## 🔑 Key insights
             - Point 1
             - Point 2
