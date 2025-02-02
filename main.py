@@ -395,7 +395,7 @@ elif st.session_state.step == 3:
             # Get relevant FHI recommendations but limit the length
             st.session_state.fhi_recommendations = st.session_state.rag.get_relevant_fhi_recommendations(
                 st.session_state.additional_info,
-                max_recommendations=2
+                max_recommendations=3
             )
 
             # Truncate the medical history and emergency log if too long
