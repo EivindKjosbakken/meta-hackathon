@@ -5,9 +5,9 @@ Caller: Hi, I need help. I'm getting these rashes all over my body and they're s
 
 Operator: Can you tell me your name and location?
 
-Caller: My name is Kari Nordmann. I'm at Torggata 3 in Oslo.
+Caller: My name is Ola Hansen. I'm at Torggata 3 in Oslo.
 
-Operator: Are you having any difficulty breathing, Kari?
+Operator: Are you having any difficulty breathing, Ola?
 
 Caller: No, not right now. But the rashes are really itchy and starting to swell up. I'm home alone and I'm getting scared.
 

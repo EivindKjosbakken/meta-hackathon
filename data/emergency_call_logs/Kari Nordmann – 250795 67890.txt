@@ -5,13 +5,13 @@ Caller: I... I think I'm having a heart attack. My chest hurts really bad, and I
 
 Operator: Can you tell me your name and location?
 
-Caller: Ola Hansen. I'm at Storgata 15, apartment 4B in Bergen.
+Caller: Kari. I'm at Storgata 15, apartment 4B in Bergen.
 
-Operator: Ola, I'm dispatching an ambulance right away. Are you alone?
+Operator: Kari, I'm dispatching an ambulance right away. Are you alone?
 
 Caller: Yes, I'm alone. The pain... it's getting worse. My arm feels numb.
 
-Operator: Stay with me, Ola. Can you get to your front door to unlock it?
+Operator: Stay with me, Kari. Can you get to your front door to unlock it?
 
 Caller: I think so. I'm in my living room right now.
 
