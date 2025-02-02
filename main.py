@@ -405,21 +405,21 @@ elif st.session_state.step == 3:
             # Main analysis prompt - more concise version
             analysis_prompt = f"""
             Analyze these patient details for emergency response.
-            Especially, notify if there is any connection between the medical history and the emergency call log/notes.
+            Notify any connections or similarities between the medical history of the patient and the emergency call log/notes.
+            Only include the most relevant information critical for the emergency response.
 
 
             NOTES: {st.session_state.additional_info}
 
-            HISTORY: {truncated_medical_history}
+            MEDICALHISTORY: {truncated_medical_history}
 
             EMERGENCY LOG: {st.session_state.patient_info}
 
-            KEY RECOMMENDATIONS: {st.session_state.fhi_recommendations}
-            Respond with in the following format:
+            Respond with in the following format, with the action points for the ambulance crew:
             ## 🔑 Key insights
             - Point 1
             - Point 2
-            ## ⚡ Action points (for the ambulance crew)
+            ## ⚡ Action points
             - Point 1
             - Point 2
             """
