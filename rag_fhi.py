@@ -125,7 +125,7 @@ class FHI_recommendations:
 
         docs = load_fhi_recommendations()
         if docs:  # Only load if we have documents
-            self.load(docs[:300])
+            self.load(docs[:100])
 
     def load(self, documents: List[Dict[str, str]]) -> None:
         """
