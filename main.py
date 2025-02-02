@@ -411,6 +411,7 @@ elif st.session_state.step == 3:
 
             Analyze these patient details for emergency response.
             Inform the medical team about connections between the patients medical history and the emergency call log/notes.
+            Particularly, mention relevant diagnoses, conditions from the patients medical history.
             Only include the most relevant information critical for the emergency response.
 
             Respond with in the following format, with the action points directed at the ambulance crew:
