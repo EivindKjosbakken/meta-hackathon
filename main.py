@@ -107,6 +107,7 @@ def get_document_response(text, question, images=None):
     Please answer this question: {question}
 
     Base your answer only on the information provided in the document and images (if any). If the answer cannot be found in the provided information, please say so.
+    Provide a concise answer.
     """
     if images:
         try:
@@ -388,68 +389,73 @@ elif st.session_state.step == 2:
 # STEP 3: ANALYSIS & CHAT
 # ------------------------------
 elif st.session_state.step == 3:
-    with st.spinner("Analyzing all patient data..."):
-        # Get relevant FHI recommendations but limit the length
-        fhi_recommendations = st.session_state.rag.get_relevant_fhi_recommendations(
-            st.session_state.additional_info,
-            max_recommendations=2  # Limit number of recommendations
-        )
+    # Only run analysis if it hasn't been done yet
+    if 'current_analysis' not in st.session_state:
+        with st.spinner("Analyzing all patient data..."):
+            # Get relevant FHI recommendations but limit the length
+            st.session_state.fhi_recommendations = st.session_state.rag.get_relevant_fhi_recommendations(
+                st.session_state.additional_info,
+                max_recommendations=2
+            )
 
-        # Truncate the medical history and emergency log if too long
-        max_history_length = 500
-        truncated_medical_history = st.session_state.pdf_text[:max_history_length] + "..." if len(st.session_state.pdf_text) > max_history_length else st.session_state.pdf_text
+            # Truncate the medical history and emergency log if too long
+            max_history_length = 500
+            truncated_medical_history = st.session_state.pdf_text[:max_history_length] + "..." if len(st.session_state.pdf_text) > max_history_length else st.session_state.pdf_text
 
-        # Main analysis prompt - more concise version
-        analysis_prompt = f"""
-        Analyze these patient details for emergency response:
+            # Main analysis prompt - more concise version
+            analysis_prompt = f"""
+            Analyze these patient details for emergency response:
 
-        NOTES: {st.session_state.additional_info}
+            NOTES: {st.session_state.additional_info}
 
-        HISTORY: {truncated_medical_history}
+            HISTORY: {truncated_medical_history}
 
-        EMERGENCY LOG: {st.session_state.patient_info}
+            EMERGENCY LOG: {st.session_state.patient_info}
 
-        KEY RECOMMENDATIONS: {fhi_recommendations}
-        Respond with in the following format:
-        ## 🔑 Key insights
-        - Point 1
-        - Point 2
-        ## ⚡ Action points
-        - Point 1
-        - Point 2
-        """
+            KEY RECOMMENDATIONS: {st.session_state.fhi_recommendations}
+            Respond with in the following format:
+            ## 🔑 Key insights
+            - Point 1
+            - Point 2
+            ## ⚡ Action points
+            - Point 1
+            - Point 2
+            """
 
-        # Use vision inference with increased max_tokens
-        analysis = vision_inference(
-            st.session_state.patient_images,
-            analysis_prompt,
-            max_tokens=512  # Increased from default 500
-        )
-
-        # After displaying the analysis, store it in session state to prevent regeneration:
-        if 'current_analysis' not in st.session_state:
+            # Use vision inference with increased max_tokens
+            analysis = vision_inference(
+                st.session_state.patient_images,
+                analysis_prompt,
+                max_tokens=512
+            )
             st.session_state.current_analysis = analysis
 
-        st.write(st.session_state.current_analysis)
+    # Display the stored analysis
+    st.write(st.session_state.current_analysis)
 
-        # Display recommendations summary
-        with st.expander("Relevant Health Recommendations"):
-            st.info(fhi_recommendations)
+    # Display recommendations summary
+    with st.expander("Relevant Health Recommendations"):
+        st.info(st.session_state.fhi_recommendations)
 
     # CHAT INTERFACE
     # --------------
     st.subheader("Chat with Assistant")
     user_question = st.text_input("Ask a question about the patient:")
+    
+    # Create a container for the spinner
+    spinner_container = st.empty()
 
     if st.button("Send message"):
         if user_question:
             st.session_state.chat_history.append(("user", user_question))
-            with st.spinner("Getting response..."):
-                response = get_document_response(
-                    st.session_state.pdf_text,
-                    user_question,
-                    images=st.session_state.patient_images
-                )
+            # Show spinner in the specific container
+            with spinner_container:
+                with st.spinner("Getting response..."):
+                    response = get_document_response(
+                        st.session_state.pdf_text,
+                        user_question,
+                        images=st.session_state.patient_images
+                    )
             st.session_state.chat_history.append(("assistant", response))
             st.rerun()
 
