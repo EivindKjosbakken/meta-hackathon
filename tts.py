@@ -123,3 +123,9 @@ def text_to_speech(text, lang='en'):
     audio_bytes = generate_audio(text, lang)
     b64 = base64.b64encode(audio_bytes).decode()
     st.markdown(create_custom_audio_player(b64), unsafe_allow_html=True)
+
+# Add new function for direct Streamlit audio player
+def text_to_speech_native(text, lang='en'):
+    """Display native Streamlit audio player with the provided text"""
+    audio_bytes = generate_audio(text, lang)
+    st.audio(audio_bytes, format="audio/mpeg")

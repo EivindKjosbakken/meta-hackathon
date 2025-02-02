@@ -304,7 +304,7 @@ if st.session_state.step == 1:
                 st.session_state.audio_bytes = generate_audio(audio_text)
             
             # Display audio player directly
-            st.audio(st.session_state.audio_bytes, format='audio/mp3')
+            st.audio(st.session_state.audio_bytes, format='audio/mpeg')
 
             if st.button("Continue to Assessment"):
                 st.session_state.step = 2
@@ -459,7 +459,7 @@ else:
                     st.rerun()
             with col2:
                 if 'play_analysis' in st.session_state and st.session_state.play_analysis:
-                    st.audio(st.session_state.analysis_audio, format='audio/mp3')
+                    st.audio(st.session_state.analysis_audio, format='audio/mpeg')
                     st.session_state.play_analysis = False
 
             # Display recommendations summary
@@ -474,7 +474,7 @@ else:
                     st.session_state.play_recommendations = True
             with col2:
                 if 'play_recommendations' in st.session_state and st.session_state.play_recommendations:
-                    st.audio(recommendations_audio, format='audio/mp3')
+                    st.audio(recommendations_audio, format='audio/mpeg')
                     st.session_state.play_recommendations = False
 
             with st.expander("View Original Recommendations"):
