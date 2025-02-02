@@ -103,6 +103,7 @@ def get_document_response(text, question, images=None):
     This is a patient journal, showing the medical history of the patient. Use this information if relevant when answering questions.
     {text}
 
+    The ambulance crew has also included the following information: {st.session_state.additional_info}
     Please answer this question: {question}
 
     Base your answer only on the information provided in the document and images (if any). If the answer cannot be found in the provided information, please say so.
@@ -258,7 +259,6 @@ st.markdown("---")
 # ------------------------------
 if st.session_state.step == 1:
     with st.container():
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
         st.title("🔍 Patient Search")
         search_query = st.text_input("Search by name or number:").lower()
 
@@ -304,7 +304,7 @@ if st.session_state.step == 1:
                 st.session_state.audio_bytes = generate_audio(audio_text)
             
             # Display audio player directly
-            st.audio(st.session_state.audio_bytes, format='audio/mpeg')
+            st.audio(st.session_state.audio_bytes, format='audio/mp3')
 
             if st.button("Continue to Assessment"):
                 st.session_state.step = 2
@@ -375,139 +375,75 @@ elif st.session_state.step == 2:
 # STEP 3: ANALYSIS & CHAT
 # ------------------------------
 else:
-    with st.container():
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        with st.spinner("Analyzing all patient data..."):
-            # Get relevant FHI recommendations
-            fhi_recommendations = st.session_state.rag.get_relevant_fhi_recommendations(
-                st.session_state.additional_info
-            )
+    with st.spinner("Analyzing all patient data..."):
+        # Get relevant FHI recommendations but limit the length
+        fhi_recommendations = st.session_state.rag.get_relevant_fhi_recommendations(
+            st.session_state.additional_info,
+            max_recommendations=2  # Limit number of recommendations
+        )
 
-            # Summarize recommendations
-            summary_prompt = f"""
-            Please summarize the following health recommendations in a clear and concise way, 
-            focusing on the most relevant points for this emergency situation. 
-            Format your response as follows:
+        # Truncate the medical history and emergency log if too long
+        max_history_length = 500
+        truncated_medical_history = st.session_state.pdf_text[:max_history_length] + "..." if len(st.session_state.pdf_text) > max_history_length else st.session_state.pdf_text
 
-            SUMMARY:
-            [Your summary of the key points]
+        # Main analysis prompt - more concise version
+        analysis_prompt = f"""
+        Analyze these patient details for emergency response:
 
-            SOURCES:
-            - List each source title and its key recommendation
+        NOTES: {st.session_state.additional_info}
 
-            Original recommendations:
-            {fhi_recommendations}
-            """
-            recommendations_summary = inference(summary_prompt)
+        HISTORY: {truncated_medical_history}
 
-            # Main analysis prompt
-            analysis_prompt = f"""
-            You are an expert medical professional.
-            The images are taken on-scene from an ambulance helping the patient with what might be a medical emergency.
+        EMERGENCY LOG: {st.session_state.patient_info}
 
-            Consider these relevant health recommendations:
-            {recommendations_summary}
+        KEY RECOMMENDATIONS: {fhi_recommendations}
+        Respond with in the following format:
+        ## 🔑 Key insights
+        - Point 1
+        - Point 2
+        ## ⚡ Action points
+        - Point 1
+        - Point 2
+        """
 
-            Analyze the patient's medical journal, current images, and the following additional information:
+        # Use vision inference with increased max_tokens
+        analysis = vision_inference(
+            st.session_state.patient_images,
+            analysis_prompt,
+            max_tokens=512  # Increased from default 500
+        )
 
-            ADDITIONAL NOTES FROM AMBULANCE PERSONNEL ON SCENE:
-            {st.session_state.additional_info}
+        # After displaying the analysis, store it in session state to prevent regeneration:
+        if 'current_analysis' not in st.session_state:
+            st.session_state.current_analysis = analysis
 
-            Patient journal (medical history):
-            {st.session_state.pdf_text}
+        st.write(st.session_state.current_analysis)
 
-            Emergency call log:
-            {st.session_state.patient_info}
+        # Display recommendations summary
+        with st.expander("Relevant Health Recommendations"):
+            st.info(fhi_recommendations)
 
-            Provide a structured assessment with clear action points for the ambulance personnel.
-
-            1. Key insights (headline 1)
-            2. Action points (headline 2)
-
-            Respond in the following format:
-            ## 🔑 Key insights
-            - Bullet point 1
-            - Bullet point 2
-            - ...
-            ## ⚡ Action points
-            - Bullet point 1
-            - Bullet point 2
-            - ...
-            Reply with the headlines and bullet points only, no other text.
-            """
-
-            # Use vision inference for final analysis
-            analysis = vision_inference(
-                st.session_state.patient_images,
-                analysis_prompt,
-                max_tokens=500
-            )
-
-            # After displaying the analysis, store it in session state to prevent regeneration:
-            if 'current_analysis' not in st.session_state:
-                st.session_state.current_analysis = analysis
-
-            st.write(st.session_state.current_analysis)
-
-            # Add audio player with button
-            col1, col2 = st.columns([1, 4])
-            with col1:
-                if st.button("🔊 Listen to Analysis"):
-                    analysis_audio = generate_audio(st.session_state.current_analysis)
-                    st.session_state.analysis_audio = analysis_audio
-                    st.session_state.play_analysis = True
-                    st.rerun()
-            with col2:
-                if 'play_analysis' in st.session_state and st.session_state.play_analysis:
-                    st.audio(st.session_state.analysis_audio, format='audio/mpeg')
-                    st.session_state.play_analysis = False
-
-            # Display recommendations summary
-            st.subheader("Relevant Health Recommendations")
-            st.info(recommendations_summary)
-
-            # Add audio player with button
-            col1, col2 = st.columns([1, 4])
-            with col1:
-                if st.button("🔊 Listen to Recommendations"):
-                    recommendations_audio = generate_audio(recommendations_summary)
-                    st.session_state.play_recommendations = True
-            with col2:
-                if 'play_recommendations' in st.session_state and st.session_state.play_recommendations:
-                    st.audio(recommendations_audio, format='audio/mpeg')
-                    st.session_state.play_recommendations = False
-
-            with st.expander("View Original Recommendations"):
-                st.write(fhi_recommendations)
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    # --------------
     # CHAT INTERFACE
     # --------------
-    with st.container():
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.subheader("Chat with Assistant")
-        user_question = st.text_input("Ask a question about the patient:")
+    st.subheader("Chat with Assistant")
+    user_question = st.text_input("Ask a question about the patient:")
 
-        if st.button("Send"):
-            if user_question:
-                st.session_state.chat_history.append(("user", user_question))
-                with st.spinner("Getting response..."):
-                    response = get_document_response(
-                        st.session_state.pdf_text,
-                        user_question,
-                        images=st.session_state.patient_images
-                    )
-                st.session_state.chat_history.append(("assistant", response))
-                st.experimental_rerun()
+    if st.button("Send"):
+        if user_question:
+            st.session_state.chat_history.append(("user", user_question))
+            with st.spinner("Getting response..."):
+                response = get_document_response(
+                    st.session_state.pdf_text,
+                    user_question,
+                    images=st.session_state.patient_images
+                )
+            st.session_state.chat_history.append(("assistant", response))
+            st.rerun()
 
-        # Display conversation with chat bubbles
-        if st.session_state.chat_history:
-            for role, message in st.session_state.chat_history:
-                st.markdown(chat_bubble(message, sender=role), unsafe_allow_html=True)
-
-        st.markdown("</div>", unsafe_allow_html=True)
+    # Display conversation with chat bubbles
+    if st.session_state.chat_history:
+        for role, message in st.session_state.chat_history:
+            st.markdown(chat_bubble(message, sender=role), unsafe_allow_html=True)
 
 # ------------------------------
 # OPTIONAL: START OVER

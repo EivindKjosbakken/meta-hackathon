@@ -146,13 +146,13 @@ class FHI_recommendations:
             metadatas=metadatas
         )
 
-    def query(self, query_text: str, n_results: int = 5) -> List[Dict]:
+    def query(self, query_text: str, n_results: int = 3) -> List[Dict]:
         """
         Query the document store for relevant documents.
         
         Args:
             query_text: The search query
-            n_results: Number of results to return (default: 5)
+            n_results: Number of results to return (default: 3)
             
         Returns:
             List of relevant documents with their metadata
@@ -173,24 +173,26 @@ class FHI_recommendations:
             
         return documents
     
-    def get_relevant_fhi_recommendations(self, query):
+    def get_relevant_fhi_recommendations(self, query, max_recommendations=2):
         # Query documents
-        results = self.query(query)
+        results = self.query(query, n_results=max_recommendations)  # Reduced from 3 to 2
 
-        relevant_fhi_recommendations = "Helsedirektoratet Nasjonale krav og anbefalinger. Retningslinjer, råd, veiledere, forløp, rundskriv, standarder og Normen-dokumenter:\n\n"
+        relevant_fhi_recommendations = "FHI anbefalinger:\n\n"
 
         for i, doc in enumerate(results, 1):
-            relevant_fhi_recommendations += f"Source {i}: {doc['metadata']['title']}\n"
-            relevant_fhi_recommendations += f"Document ID: {doc['id']}\n"
-            relevant_fhi_recommendations += f"Content: {doc['text'][:800]}\n"
-            relevant_fhi_recommendations += "_______________\n\n"
+            relevant_fhi_recommendations += f"{i}. {doc['metadata']['title']}\n"
+            # Take first 300 characters of content
+            content = doc['text'][:300]
+            if len(doc['text']) > 300:
+                content += "..."
+            relevant_fhi_recommendations += f"{content}\n\n"
 
         return relevant_fhi_recommendations
 
 
-# Example usage:
-if __name__ == "__main__":
-    rag = FHI_recommendations()
-    recommendations = rag.get_relevant_fhi_recommendations("Hva er behandlingsresistent hypertensjon?")
-    print(recommendations)
+# # Example usage:
+# if __name__ == "__main__":
+#     rag = FHI_recommendations()
+#     recommendations = rag.get_relevant_fhi_recommendations("Hva er behandlingsresistent hypertensjon?")
+#     print(recommendations)
 

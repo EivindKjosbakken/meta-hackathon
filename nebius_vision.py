@@ -2,6 +2,8 @@ from os import environ
 from dotenv import load_dotenv
 from openai import OpenAI
 import base64
+from PIL import Image
+import io
 
 load_dotenv()
 
@@ -19,23 +21,31 @@ client = OpenAI(
 )
 
 
-def encode_image(image_input):
+def encode_image(image_input, target_size=(512, 512)):
     # If the input is already a base64 string, return it directly
     if isinstance(image_input, str) and image_input.startswith("data:image"):
-        # Extract the base64 part if it's a data URL
         return image_input.split(",")[1] if "," in image_input else image_input
 
     # Handle Streamlit UploadedFile objects
     if hasattr(image_input, "getvalue"):
-        return base64.b64encode(image_input.getvalue()).decode("utf-8")
+        image_data = image_input.getvalue()
+    # If it's a file path, read it
+    elif isinstance(image_input, (str, bytes)):
+        with open(image_input, "rb") as image_file:
+            image_data = image_file.read()
+    else:
+        raise ValueError(f"Unsupported image input type: {type(image_input)}")
 
-    # If it's a file path, read and encode it
+    # Open and resize the image
     try:
-        if isinstance(image_input, (str, bytes)):
-            with open(image_input, "rb") as image_file:
-                return base64.b64encode(image_file.read()).decode("utf-8")
-        else:
-            raise ValueError(f"Unsupported image input type: {type(image_input)}")
+        img = Image.open(io.BytesIO(image_data))
+        img = img.convert('RGB')  # Convert to RGB mode
+        img = img.resize(target_size, Image.Resampling.LANCZOS)
+        
+        # Save the resized image to bytes
+        buffer = io.BytesIO()
+        img.save(buffer, format="JPEG")
+        return base64.b64encode(buffer.getvalue()).decode("utf-8")
     except Exception as e:
         raise ValueError(f"Failed to process image input: {e}")
 
