@@ -1,23 +1,28 @@
+Time: 12:30AM
 Operator: Emergency services, what's your emergency?
 
-Caller: Hi, I need help. I'm getting these rashes all over my body and they're spreading really fast. I'm really worried.
+Caller: I... I think I'm having a heart attack. My chest hurts really bad, and I can't move my right arm properly.
 
 Operator: Can you tell me your name and location?
 
-Caller: My name is Kari Nordmann. I'm at Torggata 3 in Oslo.
+Caller: Ola Hansen. I'm at Storgata 15, apartment 4B in Bergen.
 
-Operator: Are you having any difficulty breathing, Kari?
+Operator: Ola, I'm dispatching an ambulance right away. Are you alone?
 
-Caller: No, not right now. But the rashes are really itchy and starting to swell up. I'm home alone and I'm getting scared.
+Caller: Yes, I'm alone. The pain... it's getting worse. My arm feels numb.
 
-Operator: Try not to scratch the rashes. When did they start appearing?
+Operator: Stay with me, Ola. Can you get to your front door to unlock it?
 
-Caller: About 30 minutes ago. The only thing different is I used a new laundry detergent yesterday.
+Caller: I think so. I'm in my living room right now.
 
-Operator: I'm dispatching an ambulance to you now. Can you make your way to the main entrance to let them in when they arrive?
+Operator: If you can safely do so, unlock your door and then sit or lie down. Do you take any medications?
 
-Caller: Yes, I can do that.
+Caller: Yes, blood pressure medication. It's in the bathroom cabinet.
 
-Operator: Good. Remove any tight clothing and let me know if you start having trouble breathing. I'll stay on the line with you until the ambulance arrives.
+Operator: The ambulance is on its way. I want you to chew an aspirin if you have any available. Do not try to drive yourself to the hospital.
 
-Caller: Thank you. I'll go wait by the entrance now.
+Caller: I have aspirin in the kitchen. I'll get it now.
+
+Operator: Good. I'll stay on the line with you until the paramedics arrive. Let me know immediately if your symptoms get worse.
+
+Caller: Thank you. I can hear the sirens now.

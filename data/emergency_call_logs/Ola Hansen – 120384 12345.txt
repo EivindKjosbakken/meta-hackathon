@@ -1,27 +1,24 @@
+Time: 09:00PM
 Operator: Emergency services, what's your emergency?
 
-Caller: I... I think I'm having a heart attack. My chest hurts really bad, and I can't move my right arm properly.
+Caller: Hi, I need help. I'm getting these rashes all over my body and they're spreading really fast. I'm really worried.
 
 Operator: Can you tell me your name and location?
 
-Caller: Ola Hansen. I'm at Storgata 15, apartment 4B in Bergen.
+Caller: My name is Kari Nordmann. I'm at Torggata 3 in Oslo.
 
-Operator: Ola, I'm dispatching an ambulance right away. Are you alone?
+Operator: Are you having any difficulty breathing, Kari?
 
-Caller: Yes, I'm alone. The pain... it's getting worse. My arm feels numb.
+Caller: No, not right now. But the rashes are really itchy and starting to swell up. I'm home alone and I'm getting scared.
 
-Operator: Stay with me, Ola. Can you get to your front door to unlock it?
+Operator: Try not to scratch the rashes. When did they start appearing?
 
-Caller: I think so. I'm in my living room right now.
+Caller: About 30 minutes ago. The only thing different is I used a new laundry detergent yesterday.
 
-Operator: If you can safely do so, unlock your door and then sit or lie down. Do you take any medications?
+Operator: I'm dispatching an ambulance to you now. Can you make your way to the main entrance to let them in when they arrive?
 
-Caller: Yes, blood pressure medication. It's in the bathroom cabinet.
+Caller: Yes, I can do that.
 
-Operator: The ambulance is on its way. I want you to chew an aspirin if you have any available. Do not try to drive yourself to the hospital.
+Operator: Good. Remove any tight clothing and let me know if you start having trouble breathing. I'll stay on the line with you until the ambulance arrives.
 
-Caller: I have aspirin in the kitchen. I'll get it now.
-
-Operator: Good. I'll stay on the line with you until the paramedics arrive. Let me know immediately if your symptoms get worse.
-
-Caller: Thank you. I can hear the sirens now.
+Caller: Thank you. I'll go wait by the entrance now.
